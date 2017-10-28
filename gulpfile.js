@@ -22,7 +22,23 @@ gulp.task('default', function() {
     loadJquery();
     loadBootstrap();
     loadAdminLte();
+    loadFontAwesome();
+    loadIonicons();
 });
+
+function loadIonicons() {
+    load('ionicons', 'css', '/dist/css/');
+
+    gulp.src(dir.npm + 'ionicons/dist/fonts/*')
+        .pipe(copy(dir.css + 'fonts/', {prefix: 4}));
+}
+
+function loadFontAwesome() {
+    load('font-awesome', 'css', '/css/');
+
+    gulp.src(dir.npm + 'font-awesome/fonts/*')
+        .pipe(copy(dir.css + 'fonts/', {prefix: 3}));
+}
 
 function loadJquery() {
     load('jQuery', 'js', '/dist/');
@@ -33,7 +49,7 @@ function loadBootstrap() {
     loadDist('bootstrap', 'css', '.min');
     loadDist('bootstrap', 'js', '.min');
     gulp.src(dir.npm + 'bootstrap/dist/fonts/*')
-        .pipe(copy(dir.fonts, {prefix: 3}));
+        .pipe(copy(dir.css + 'fonts/', {prefix: 4}));
 }
 
 function loadAdminLte() {
