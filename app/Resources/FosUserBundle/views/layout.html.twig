@@ -1,0 +1,12 @@
+{% extends '::base.html.twig' %}
+
+{% block sidebar %}{% endblock %}
+{% block content_header %}{% endblock %}
+
+{% block content %}
+    <div>
+        {% block fos_user_content %}
+        {% endblock fos_user_content %}
+    </div>
+
+{% endblock %}
