@@ -19,6 +19,7 @@ class AppKernel extends Kernel
             new FOS\UserBundle\FOSUserBundle(),
 
             new AppBundle\AppBundle(),
+            new TrelloBundle\TrelloBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
