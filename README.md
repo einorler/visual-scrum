@@ -12,6 +12,7 @@ In order to install the project please run these commands:
     composer install
     npm install
     gulp
+    bin/console assets:install --symlink web
     bin/console doctrine:database:create
     bin/console doctrine:schema:update --force
     bin/console server:run

@@ -229,6 +229,10 @@
 <script src="{{ asset('js/admin-lte/adminlte.min.js') }}"></script>
 <!-- AdminLTE for demo purposes -->
 {#<script src="../../dist/js/demo.js"></script>#}
+{# Fos JS Routing #}
+<script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+<script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+
 <script>
     $(document).ready(function () {
         $('.sidebar-menu').tree()
