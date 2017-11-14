@@ -11,15 +11,15 @@
         {#Trello API#}
         <script src="https://trello.com/1/client.js?key=057e9f22669385617e72ea851ba12132"></script>
         <script>
-            var lists = [];
-            var boardData = [];
+            var boardList = [];
+            var processedBoardList = [];
             // Needed to handle asynchronous calls to trello API
             var callsSent = 0;
             var callsProcessed = 0;
 
             $(window).load(function(){
                 // Firstly, remove any authentication token if already set
-//                Trello.deauthorize();
+                Trello.deauthorize();
 
                 Trello.authorize({
                     name: "Not VS",
@@ -41,46 +41,46 @@
                 Trello.get('/members/me/boards/', [], getLists, error)
             }
 
-            // Gets the lists of each board and passes them for filtering
+            // Gets the boardList of each board and passes them for filtering
             var getLists = function(boards) {
                 $.each(boards, function(index, board) {
                     // Notifies that an asynchronous call to the API has been sent
                     callsSent++;
-                    Trello.get('/boards/' + board.id + '/lists', [], filterLists, error);
+                    Trello.get('/boards/' + board.id + '/boardList', [], function(listsArray) {
+                        // Notifies that an asynchronous call has been handled
+                        callsProcessed++;
+
+                        $.each(listsArray, function(index, list) {
+                            if (list.name == 'Backlog') {
+                                // Adds a list to the global array
+                                board.list = list.id;
+                                boardList.push(board);
+                            }
+                        });
+
+                        // This is called every time, because there is no way of knowing which is the last
+                        // asynchronous call to the API
+                        processBoards();
+                    }, error);
                 });
             };
 
-            // Checks the lists and adds lists with configured name to the global lists array
-            var filterLists = function(listsArray) {
-                // Notifies that an asynchronous call has been handled
-                callsProcessed++;
-
-                $.each(listsArray, function(index, list) {
-                    if (list.name == 'Backlog') {
-                        // Adds a list to the global array
-                        lists.push(list);
-                    }
-                });
-
-                // This is called every time, because there is no way of knowing which is the last
-                // asynchronous call to the API
-                processLists();
-            };
-
-            // Processes the already filter global lists array.
-            function processLists() {
-                // The method is called throughout the building of the lists array but this ensures that
-                // the function will only be processed when all the lists will are built
+            // Processes the already filter global boardList array.
+            function processBoards() {
+                // The method is called throughout the building of the boardList array but this ensures that
+                // the function will only be processed when all the boardList will are built
                 if (callsSent != callsProcessed) {
                     return;
                 }
                 
-                $.each(lists, function (index, list) {
+                $.each(boardList, function (index, board) {
                     callsSent++;
-                    Trello.get('/lists/' + list.id + '/cards', [], function (cards) {
+                    Trello.get('/boardList/' + board.list + '/cards', [], function (cards) {
                         callsProcessed++;
-                        list.cards = cards;
-                        fullLists.push(list);
+
+                        board.cards = cards;
+                        processedBoardList.push(board);
+
                         sendData()
                     }, error);
                 });
@@ -93,7 +93,7 @@
                     return;
                 }
 
-                alert(JSON.stringify(boardData));
+                alert(JSON.stringify(boardList));
 
                 // Remove authentication token after all is said and done
 //                Trello.deauthorize();
