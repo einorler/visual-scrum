@@ -19,7 +19,7 @@
 
             $(window).load(function(){
                 // Firstly, remove any authentication token if already set
-                Trello.deauthorize();
+//                Trello.deauthorize();
 
                 Trello.authorize({
                     name: "Not VS",
@@ -46,7 +46,7 @@
                 $.each(boards, function(index, board) {
                     // Notifies that an asynchronous call to the API has been sent
                     callsSent++;
-                    Trello.get('/boards/' + board.id + '/boardList', [], function(listsArray) {
+                    Trello.get('/boards/' + board.id + '/lists', [], function(listsArray) {
                         // Notifies that an asynchronous call has been handled
                         callsProcessed++;
 
@@ -75,15 +75,25 @@
                 
                 $.each(boardList, function (index, board) {
                     callsSent++;
-                    Trello.get('/boardList/' + board.list + '/cards', [], function (cards) {
+                    Trello.get('/lists/' + board.list + '/cards', [], function (cards) {
                         callsProcessed++;
 
-                        board.cards = cards;
-                        processedBoardList.push(board);
+                        finalizeBoardProcessing(board, cards)
 
                         sendData()
                     }, error);
                 });
+            }
+
+            // Adds cards to board and board to final processedBoardList global array
+            function finalizeBoardProcessing(board, cards) {
+                board.cards = [];
+
+                $.each(cards, function (index, card) {
+                    board.cards.push(card.name);
+                });
+                
+                processedBoardList.push(board);
             }
 
             // Final function for sending data to backend via ajax
