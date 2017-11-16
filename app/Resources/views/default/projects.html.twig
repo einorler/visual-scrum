@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block content_header %}
+    <h1>
+        Projects
+        <small>This is where you manage your project information</small>
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="{{ path('homepage') }}"><i class="fa fa-dashboard"></i> Home</a></li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-9">
+            {% for project in app.user.projects %}
+
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

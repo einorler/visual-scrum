@@ -78,7 +78,7 @@ class Project
     /**
      * @param mixed $title
      */
-    public function setTitle($title)
+    public function setTitle(string $title)
     {
         $this->title = $title;
     }
@@ -86,7 +86,7 @@ class Project
     /**
      * @return User
      */
-    public function getUser()
+    public function getUser(): User
     {
         return $this->user;
     }
@@ -94,7 +94,7 @@ class Project
     /**
      * @param User $user
      */
-    public function setUser($user)
+    public function setUser(?User $user)
     {
         $this->user = $user;
     }
