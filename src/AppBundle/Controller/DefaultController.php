@@ -41,7 +41,9 @@ class DefaultController extends Controller
      */
     public function configurationAction(Request $request)
     {
-        return $this->render('default/configuration.html.twig');
+        return $this->render('default/configuration.html.twig', [
+            'manager' => $this->get('app.manager.plugin'),
+        ]);
     }
 
     /**

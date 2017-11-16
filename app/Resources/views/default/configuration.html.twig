@@ -6,14 +6,42 @@
         <small>Here you can configure the source of your projects data</small>
     </h1>
     <ol class="breadcrumb">
-        <li><a href="{{ path('homepage') }}"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="{{ path('homepage') }}"><i class="fa fa-dashboard"></i> Home </a></li>
+        <li class="active"><i class="fa fa-gears"></i> Configuration </li>
     </ol>
 {% endblock %}
 
 {% block content %}
     <div class="row">
         <div class="col-md-9">
+            <div class="box box-info">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Please configure your project management tool</h3>
+                </div>
+                <form class="form-horizontal" action="{{ path('configuration') }}" method="post">
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label for="configurationType" class="col-sm-2 control-label">Type</label>
 
+                            <div class="col-sm-10">
+                                <select name="type" class="form-control" id="configurationType">
+                                    {% for type in manager.availablePlugins %}
+                                        <option value="{{ type }}">{{ type }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div id="remaining-configuration-form">
+
+                        </div>
+                    </div>
+                    <!-- /.box-body -->
+                    <div class="box-footer">
+                        <button type="submit" class="btn btn-info pull-left">Submit</button>
+                    </div>
+                    <!-- /.box-footer -->
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}

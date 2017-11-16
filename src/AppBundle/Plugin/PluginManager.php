@@ -7,7 +7,7 @@ class PluginManager
     /**
      * @var PluginInterface[]
      */
-    private $plugins;
+    private $plugins = [];
 
     /**
      * @param PluginInterface $plugin
