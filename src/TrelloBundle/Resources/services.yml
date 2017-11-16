@@ -1,0 +1,5 @@
+services:
+    trello.plugin:
+        class: TrelloBundle\Plugin\TrelloPlugin
+        arguments:
+          - '@doctrine.orm.entity_manager'

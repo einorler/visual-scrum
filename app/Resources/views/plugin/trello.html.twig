@@ -103,7 +103,18 @@
                     return;
                 }
 
-                alert(JSON.stringify(boardList));
+                $.ajax(
+                    Routing.generate('trello_ajax') + '?XDEBUG_SESSION_START=PHPSTORM',
+                    {
+                        method: 'POST',
+                        data: {boards: processedBoardList},
+                        contentType: 'application/json',
+                        success: function (data) {
+                            alert('success');
+                        },
+                        error: error
+                    }
+                );
 
                 // Remove authentication token after all is said and done
 //                Trello.deauthorize();

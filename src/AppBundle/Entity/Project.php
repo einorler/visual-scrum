@@ -32,17 +32,9 @@ class Project
     private $user;
 
     /**
-     * @var Configuration
-     *
-     * @ORM\OneToOne(targetEntity="Configuration")
-     * @ORM\JoinColumn(name="config_id", referencedColumnName="id")
-     */
-    private $configuration;
-
-    /**
      * @var ArrayCollection|Project[]
      *
-     * @ORM\OneToMany(targetEntity="UserStory", mappedBy="project")
+     * @ORM\OneToMany(targetEntity="UserStory", mappedBy="project", cascade={"persist", "remove"})
      */
     private $userStories;
 
@@ -108,22 +100,6 @@ class Project
     }
 
     /**
-     * @return Configuration
-     */
-    public function getConfiguration()
-    {
-        return $this->configuration;
-    }
-
-    /**
-     * @param Configuration $configuration
-     */
-    public function setConfiguration($configuration)
-    {
-        $this->configuration = $configuration;
-    }
-
-    /**
      * @return Project[]|ArrayCollection
      */
     public function getUserStories()
@@ -137,6 +113,8 @@ class Project
     public function addUserStory(UserStory $userStory)
     {
         $this->userStories->add($userStory);
+
+        $userStory->setProject($this);
     }
 
     /**
@@ -146,6 +124,7 @@ class Project
     {
         if ($this->userStories->contains($userStory)) {
             $this->userStories->remove($userStory);
+            $userStory->setProject(null);
         }
     }
 
