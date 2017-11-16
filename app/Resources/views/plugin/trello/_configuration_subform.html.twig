@@ -1,0 +1,11 @@
+<div class="form-group">
+    <label for="configurationList" class="col-sm-2 control-label">List Name</label>
+
+    <div class="col-sm-10">
+        <input type="text" class="form-control" name="list" placeholder="Name of list that stores user stories in each board" id="configurationList"
+               {% if configuration is not null and configuration.metas['list'] is defined %}
+                value="{{ configuration.metas['list'] }}"
+                {% endif %}
+        >
+    </div>
+</div>

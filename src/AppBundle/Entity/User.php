@@ -81,7 +81,7 @@ class User extends BaseUser
     /**
      * @return Configuration
      */
-    public function getConfiguration(): Configuration
+    public function getConfiguration(): ?Configuration
     {
         return $this->configuration;
     }

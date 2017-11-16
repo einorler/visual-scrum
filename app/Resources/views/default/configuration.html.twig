@@ -25,14 +25,17 @@
 
                             <div class="col-sm-10">
                                 <select name="type" class="form-control" id="configurationType">
+                                    <option disabled {% if configuration.type is null %}selected{% endif %}>Please choose the project management tool</option>
                                     {% for type in manager.availablePlugins %}
-                                        <option value="{{ type }}">{{ type }}</option>
+                                        <option {% if type == configuration.type %}selected{% endif %}value="{{ type }}">{{ type }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                         </div>
-                        <div id="remaining-configuration-form">
-
+                        <div id="remainingConfigurationForm">
+                            {% if configuration.type is not null %}
+                                {{ manager.getConfigurationSubForm(configuration.type, configuration) | raw }}
+                            {% endif %}
                         </div>
                     </div>
                     <!-- /.box-body -->
@@ -42,6 +45,37 @@
                     <!-- /.box-footer -->
                 </form>
             </div>
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <h4><i class="icon fa fa-check"></i> Error!</h4>
+                    {{ message }}
+                </div>
+            {% endfor %}
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <h4><i class="icon fa fa-check"></i> Error!</h4>
+                    {{ message }}
+                </div>
+            {% endfor %}
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        $('#configurationType').change(function () {
+            $.ajax(
+                '/_configuration_form_data?XDEBUG_SESSION_START=PHPSTORM',
+                {
+                    data: { plugin: $('#configurationType').val() },
+                    success: function (data) {
+                        $('#remainingConfigurationForm').append(data.form);
+                    }
+                    
+                }
+            );
+        })
+    </script>
 {% endblock %}

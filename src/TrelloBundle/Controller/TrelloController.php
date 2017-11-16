@@ -15,7 +15,7 @@ class TrelloController extends Controller
      */
     public function indexAction(Request $request)
     {
-        return $this->render(':plugin:trello.html.twig');
+        return $this->render(':plugin/trello:trello.html.twig');
     }
 
     /**
