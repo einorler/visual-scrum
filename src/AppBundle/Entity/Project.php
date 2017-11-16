@@ -24,6 +24,13 @@ class Project
     private $title;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(type="integer")
+     */
+    private $version = 1;
+
+    /**
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="User", inversedBy="projects")
@@ -32,17 +39,9 @@ class Project
     private $user;
 
     /**
-     * @var Configuration
-     *
-     * @ORM\OneToOne(targetEntity="Configuration")
-     * @ORM\JoinColumn(name="config_id", referencedColumnName="id")
-     */
-    private $configuration;
-
-    /**
      * @var ArrayCollection|Project[]
      *
-     * @ORM\OneToMany(targetEntity="UserStory", mappedBy="project")
+     * @ORM\OneToMany(targetEntity="UserStory", mappedBy="project", cascade={"persist", "remove"})
      */
     private $userStories;
 
@@ -86,15 +85,31 @@ class Project
     /**
      * @param mixed $title
      */
-    public function setTitle($title)
+    public function setTitle(string $title)
     {
         $this->title = $title;
     }
 
     /**
+     * @return int
+     */
+    public function getVersion(): int
+    {
+        return $this->version;
+    }
+
+    /**
+     * @param int $version
+     */
+    public function setVersion(int $version)
+    {
+        $this->version = $version;
+    }
+
+    /**
      * @return User
      */
-    public function getUser()
+    public function getUser(): User
     {
         return $this->user;
     }
@@ -102,25 +117,9 @@ class Project
     /**
      * @param User $user
      */
-    public function setUser($user)
+    public function setUser(?User $user)
     {
         $this->user = $user;
-    }
-
-    /**
-     * @return Configuration
-     */
-    public function getConfiguration()
-    {
-        return $this->configuration;
-    }
-
-    /**
-     * @param Configuration $configuration
-     */
-    public function setConfiguration($configuration)
-    {
-        $this->configuration = $configuration;
     }
 
     /**
@@ -137,6 +136,8 @@ class Project
     public function addUserStory(UserStory $userStory)
     {
         $this->userStories->add($userStory);
+
+        $userStory->setProject($this);
     }
 
     /**
@@ -146,6 +147,7 @@ class Project
     {
         if ($this->userStories->contains($userStory)) {
             $this->userStories->remove($userStory);
+            $userStory->setProject(null);
         }
     }
 

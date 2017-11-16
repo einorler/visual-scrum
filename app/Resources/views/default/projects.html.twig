@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block content_header %}
+    <h1>
+        Projects
+        <small>This is where you manage your project information</small>
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="{{ path('homepage') }}"><i class="fa fa-dashboard"></i> Home </a></li>
+        <li class="active"><i class="fa fa-book"></i> Projects </li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Current Projects</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table class="table table-bordered table-hover">
+                        <tbody>
+                            <tr>
+                                <th style="width: 10px">#</th>
+                                <th>Title</th>
+                                <th style="width: 100px">User stories</th>
+                                <th style="width: 40px">Version</th>
+                                <th style="width: 40px">Diagrams</th>
+                            </tr>
+                            {% set no = 1 %}
+                            {% for project in app.user.projects %}
+                                <tr>
+                                    <td>{{ no }}</td>{% set no = no + 1 %}
+                                    <td><a href="{{ path('project', {id: project.id}) }}">{{ project.title }}</a></td>
+                                    <td>{{ project.version }}</td>
+                                    <td>{{ project.userStories | length }}</td>
+                                    <td>{{ project.useCaseDiagrams | length + project.activityDiagrams | length }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if app.user.projects | length == 0 %}
+                        <div class="text-center">
+                            <h3>No projects yet? <a href="synchronize">Synchronize your PM tool</a></h3>
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer clearfix">
+                </div>
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+{% endblock %}

@@ -19,11 +19,12 @@ class TrelloController extends Controller
     }
 
     /**
-     * @Route("/api/trello/ajax", name="trello_ajax")
+     * @Route("/api/trello/ajax", name="trello_ajax",
+     *     options = { "expose" = true })
      */
     public function ajaxAction(Request $request)
     {
-
+        $this->get('trello.plugin')->saveProjectData($this->getUser(), $request->get('boards'));
 
         return new JsonResponse('ajaxed');
     }
