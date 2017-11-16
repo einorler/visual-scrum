@@ -24,6 +24,13 @@ class Project
     private $title;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(type="integer")
+     */
+    private $version = 1;
+
+    /**
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="User", inversedBy="projects")
@@ -81,6 +88,22 @@ class Project
     public function setTitle(string $title)
     {
         $this->title = $title;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVersion(): int
+    {
+        return $this->version;
+    }
+
+    /**
+     * @param int $version
+     */
+    public function setVersion(int $version)
+    {
+        $this->version = $version;
     }
 
     /**

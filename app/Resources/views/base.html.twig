@@ -34,7 +34,7 @@
 <body class="hold-transition skin-blue sidebar-mini">
 <!-- Site wrapper -->
 <div class="wrapper">
-
+    {% set route = app.request.get('_route') %}
     <header class="main-header">
         <!-- Logo -->
         <a href="{{ path('homepage') }}" class="logo">
@@ -134,7 +134,7 @@
                                 {#<li><a href="../layout/collapsed-sidebar.html"><i class="fa fa-circle-o"></i> Collapsed Sidebar</a></li>#}
                             {#</ul>#}
                         {#</li>#}
-                        <li>
+                        <li class="{% if route == 'projects' %}active{% endif %}">
                             <a href="{{ path('projects') }}">
                                 <i class="fa fa-book"></i>
                                 <span>Projects</span>
@@ -143,7 +143,9 @@
                                 </span>
                             </a>
                         </li>
-                        <li><a href="{{ path('configuration') }}"><i class="fa fa-gears"></i> <span>Configuration</span></a></li>
+                        <li class="{% if route == 'configuration' %}active{% endif %}">
+                            <a href="{{ path('configuration') }}"><i class="fa fa-gears"></i> <span>Configuration</span></a>
+                        </li>
                     {% else %}
                         <li><a href="#"><i class="fa fa-book"></i> <span>Please log in...</span></a></li>
                     {% endif %}
