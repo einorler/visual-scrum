@@ -202,4 +202,20 @@ class Project
             $this->userStories->remove($useCaceDiagram);
         }
     }
+
+    /**
+     * @param string $title
+     *
+     * @return UserStory
+     */
+    public function getUserStoryByTitle(string $title): ?UserStory
+    {
+        foreach ($this->userStories as $story) {
+            if ($story->getTitle() == $title) {
+                return $story;
+            }
+        }
+
+        return null;
+    }
 }

@@ -93,4 +93,20 @@ class User extends BaseUser
     {
         $this->configuration = $configuration;
     }
+
+    /**
+     * @param string $title
+     *
+     * @return Project
+     */
+    public function getProjectByTitle(string $title): ?Project
+    {
+        foreach ($this->projects as $project) {
+            if ($project->getTitle() == $title) {
+                return $project;
+            }
+        }
+
+        return null;
+    }
 }

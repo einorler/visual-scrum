@@ -4,6 +4,7 @@ namespace TrelloBundle\Plugin;
 
 use AppBundle\Entity\Configuration;
 use AppBundle\Entity\Project;
+use AppBundle\Entity\User;
 use AppBundle\Entity\UserStory;
 use AppBundle\Plugin\PluginInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -50,26 +51,21 @@ class TrelloPlugin implements PluginInterface
     }
 
     /**
-     * @return string
-     */
-    public function getForm()
-    {
-        return '';
-    }
-
-    /**
-     * @param UserInterface $user
+     * @param User  $user
      * @param array $data
      */
-    public function saveProjectData(UserInterface $user, array $data)
+    public function saveProjectData(User $user, array $data)
     {
         foreach ($data as $board) {
-            $project = new Project();
+            $project = $user->getProjectByTitle($board['name']) ?? new Project();
             $project->setUser($user);
             $project->setTitle($board['name']);
 
             foreach ($board['cards'] as $card) {
-                $story = new UserStory();
+                $story = $project->getUserStoryByTitle($card) ?? new UserStory();
+
+                if ($story->getId()) continue;
+
                 $story->setTitle($card);
                 $project->addUserStory($story);
             }

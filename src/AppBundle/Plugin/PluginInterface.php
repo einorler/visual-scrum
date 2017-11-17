@@ -3,6 +3,7 @@
 namespace AppBundle\Plugin;
 
 use AppBundle\Entity\Configuration;
+use AppBundle\Entity\User;
 use FOS\UserBundle\Model\UserInterface;
 
 interface PluginInterface
@@ -18,15 +19,10 @@ interface PluginInterface
     public function getSynchronizationUrl(): string;
 
     /**
-     * @return mixed
-     */
-    public function getForm();
-
-    /**
-     * @param UserInterface $user
+     * @param User  $user
      * @param array $data
      */
-    public function saveProjectData(UserInterface $user, array $data);
+    public function saveProjectData(User $user, array $data);
 
     /**
      * @param Configuration $configuration
