@@ -7,6 +7,7 @@ use AppBundle\Entity\Project;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -88,7 +89,19 @@ class DefaultController extends Controller
      */
     public function synchronizeAction(Request $request)
     {
-        return new Response('This is not implemented yet, please go to `/api/trello` manually');
+        $configuration = $this->getUser()->getConfiguration();
+
+        try {
+            if (!$configuration) {
+                throw new \Exception('You must provide configuration if you want to synchronize data.');
+            }
+
+            return new RedirectResponse($this->get('app.manager.plugin')->getSynchronizationUrl($configuration));
+        } catch (\Exception $e) {
+            $this->addFlash('error', $e->getMessage());
+
+            return new RedirectResponse('/');
+        }
     }
 
     /**

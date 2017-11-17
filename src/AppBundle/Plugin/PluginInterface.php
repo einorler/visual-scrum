@@ -15,7 +15,7 @@ interface PluginInterface
     /**
      * @return string
      */
-    public function getMainRoute(): string;
+    public function getSynchronizationUrl(): string;
 
     /**
      * @return mixed

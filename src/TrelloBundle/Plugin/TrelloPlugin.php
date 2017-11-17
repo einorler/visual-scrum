@@ -44,9 +44,9 @@ class TrelloPlugin implements PluginInterface
     /**
      * @return string
      */
-    public function getMainRoute(): string
+    public function getSynchronizationUrl(): string
     {
-        return 'trello';
+        return 'api/trello';
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace AppBundle\Plugin;
 
 use AppBundle\Entity\Configuration;
+use Symfony\Component\Form\Exception\InvalidConfigurationException;
 
 class PluginManager
 {
@@ -51,5 +52,21 @@ class PluginManager
     {
         $configuration->setType($plugin);
         $this->plugins[$plugin]->handleConfigurationFormSubmition($data, $configuration);
+    }
+
+    /**
+     * @param Configuration $configuration
+     *
+     * @return string
+     */
+    public function getSynchronizationUrl(Configuration $configuration): string
+    {
+        if (!isset($this->plugins[$configuration->getType()])) {
+            throw new InvalidConfigurationException(
+                'Invalid configuration. There are no integrations with ' . $configuration->getType()
+            );
+        }
+
+        return $this->plugins[$configuration->getType()]->getSynchronizationUrl();
     }
 }
