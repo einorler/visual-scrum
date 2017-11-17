@@ -12,7 +12,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-9">
+        <div class="col-md-9 col-sm-6">
             <div class="nav-tabs-custom">
                 <ul class="nav nav-tabs">
                     <li class="active"><a href="#activity" data-toggle="tab">Information</a></li>
@@ -139,5 +139,53 @@
             </div>
             <!-- /.nav-tabs-custom -->
         </div>
+        {% if app.user is not null %}
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-aqua"><i class="fa fa-copy"></i></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Projects</span>
+                        <span class="info-box-number">{{ app.user.projects | length }}</span>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-green"><i class="fa fa-list"></i></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">User stories</span>
+                        {% set stories = 0 %}
+                        {% for project in app.user.projects %}
+                            {% set stories = stories + project.userStories | length %}
+                        {% endfor %}
+
+                        <span class="info-box-number">{{ stories }}</span>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-yellow"><i class="fa fa-file-image-o"></i></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Diagrams</span>
+                        {% set diagrams = 0 %}
+                        {% for project in app.user.projects %}
+                            {% set diagrams = diagrams + project.useCaseDiagrams | length %}
+                            {% set diagrams = diagrams + project.activityDiagrams | length %}
+                        {% endfor %}
+
+                        <span class="info-box-number">{{ diagrams }}</span>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+            </div>
+        {% endif %}
     </div>
 {% endblock %}
