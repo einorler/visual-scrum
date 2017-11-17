@@ -61,6 +61,10 @@ class TrelloPlugin implements PluginInterface
             $project->setUser($user);
             $project->setTitle($board['name']);
 
+            if ($project->getId()) {
+                $project->setVersion($project->getVersion() + 1);
+            }
+
             foreach ($board['cards'] as $card) {
                 $story = $project->getUserStoryByTitle($card) ?? new UserStory();
 
