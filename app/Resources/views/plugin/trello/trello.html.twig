@@ -55,7 +55,7 @@
                     callsProcessed++;
 
                     $.each(listsArray, function(index, list) {
-                        if (list.name == 'Backlog') {
+                        if (list.name == '{{ app.user.configuration.metas['list'] }}') {
                             // Adds a list to the global array
                             board.list = list.id;
                             boardList.push(board);
