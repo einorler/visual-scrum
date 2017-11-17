@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block content_header %}
+    <h1>
+        Configuration
+        <small>Here you can configure the source of your projects data</small>
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="{{ path('homepage') }}"><i class="fa fa-dashboard"></i> Home </a></li>
+        <li class="active"><i class="fa fa-gears"></i> Configuration </li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-9">
+            <div class="box box-info">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Please configure your project management tool</h3>
+                </div>
+                <form class="form-horizontal" action="{{ path('configuration') }}" method="post">
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label for="configurationType" class="col-sm-2 control-label">Type</label>
+
+                            <div class="col-sm-10">
+                                <select name="type" class="form-control" id="configurationType">
+                                    <option disabled {% if configuration.type is null %}selected{% endif %}>Please choose the project management tool</option>
+                                    {% for type in manager.availablePlugins %}
+                                        <option {% if type == configuration.type %}selected{% endif %}value="{{ type }}">{{ type }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div id="remainingConfigurationForm">
+                            {% if configuration.type is not null %}
+                                {{ manager.getConfigurationSubForm(configuration.type, configuration) | raw }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- /.box-body -->
+                    <div class="box-footer">
+                        <button type="submit" class="btn btn-info pull-left">Submit</button>
+                    </div>
+                    <!-- /.box-footer -->
+                </form>
+            </div>
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <h4><i class="icon fa fa-check"></i> Error!</h4>
+                    {{ message }}
+                </div>
+            {% endfor %}
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <h4><i class="icon fa fa-check"></i> Error!</h4>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        $('#configurationType').change(function () {
+            $.ajax(
+                '/_configuration_form_data?XDEBUG_SESSION_START=PHPSTORM',
+                {
+                    data: { plugin: $('#configurationType').val() },
+                    success: function (data) {
+                        $('#remainingConfigurationForm').append(data.form);
+                    }
+                    
+                }
+            );
+        })
+    </script>
+{% endblock %}

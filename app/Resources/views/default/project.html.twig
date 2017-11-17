@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block content_header %}
+    <h1>
+        {{ project.title }}
+        <small>Manage your user stories and generate diagrams</small>
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="{{ path('projects') }}"><i class="fa fa-book"></i> Projects</a></li>
+        <li class="active">{{ project.title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">User Stories</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table class="table table-bordered table-hover">
+                        <tbody>
+                            <tr>
+                                <th style="width: 10px">#</th>
+                                <th>Title</th>
+                            </tr>
+                            {% set no = 1 %}
+                            {% for story in project.userStories %}
+                                <tr>
+                                    <td>{{ no }}</td>{% set no = no + 1 %}
+                                    <td>{{ story.title }}</a></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer clearfix">
+                </div>
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+{% endblock %}

@@ -34,7 +34,7 @@
 <body class="hold-transition skin-blue sidebar-mini">
 <!-- Site wrapper -->
 <div class="wrapper">
-
+    {% set route = app.request.get('_route') %}
     <header class="main-header">
         <!-- Logo -->
         <a href="{{ path('homepage') }}" class="logo">
@@ -107,34 +107,45 @@
                 <li class="header">MAIN NAVIGATION</li>
                 {% block sidebar_content %}
                     {% if app.user %}
-                        <li class="treeview">
-                            <a href="#">
-                                <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+                        {#<li class="treeview">#}
+                            {#<a href="{{ path('projcts') }}">#}
+                                {#<i class="fa fa-dashboard"></i> <span>Projects</span>#}
+                                {#<span class="pull-right-container">#}
+                                  {#<i class="fa fa-angle-left pull-right"></i>#}
+                                {#</span>#}
+                            {#</a>#}
+                            {#<ul class="treeview-menu">#}
+                                {#<li><a href="../../index.html"><i class="fa fa-circle-o"></i> Dashboard v1</a></li>#}
+                                {#<li><a href="../../index2.html"><i class="fa fa-circle-o"></i> Dashboard v2</a></li>#}
+                            {#</ul>#}
+                        {#</li>#}
+                        {#<li class="treeview">#}
+                            {#<a href="#">#}
+                                {#<i class="fa fa-files-o"></i>#}
+                                {#<span>Layout Options</span>#}
+                                {#<span class="pull-right-container">#}
+                                  {#<span class="label label-primary pull-right">4</span>#}
+                                {#</span>#}
+                            {#</a>#}
+                            {#<ul class="treeview-menu">#}
+                                {#<li><a href="../layout/top-nav.html"><i class="fa fa-circle-o"></i> Top Navigation</a></li>#}
+                                {#<li><a href="../layout/boxed.html"><i class="fa fa-circle-o"></i> Boxed</a></li>#}
+                                {#<li><a href="../layout/fixed.html"><i class="fa fa-circle-o"></i> Fixed</a></li>#}
+                                {#<li><a href="../layout/collapsed-sidebar.html"><i class="fa fa-circle-o"></i> Collapsed Sidebar</a></li>#}
+                            {#</ul>#}
+                        {#</li>#}
+                        <li class="{% if route == 'projects' %}active{% endif %}">
+                            <a href="{{ path('projects') }}">
+                                <i class="fa fa-book"></i>
+                                <span>Projects</span>
                                 <span class="pull-right-container">
-                                  <i class="fa fa-angle-left pull-right"></i>
+                                    <span class="label label-primary pull-right">{{ app.user.projects | length }}</span>
                                 </span>
                             </a>
-                            <ul class="treeview-menu">
-                                <li><a href="../../index.html"><i class="fa fa-circle-o"></i> Dashboard v1</a></li>
-                                <li><a href="../../index2.html"><i class="fa fa-circle-o"></i> Dashboard v2</a></li>
-                            </ul>
                         </li>
-                        <li class="treeview">
-                            <a href="#">
-                                <i class="fa fa-files-o"></i>
-                                <span>Layout Options</span>
-                                <span class="pull-right-container">
-                                  <span class="label label-primary pull-right">4</span>
-                                </span>
-                            </a>
-                            <ul class="treeview-menu">
-                                <li><a href="../layout/top-nav.html"><i class="fa fa-circle-o"></i> Top Navigation</a></li>
-                                <li><a href="../layout/boxed.html"><i class="fa fa-circle-o"></i> Boxed</a></li>
-                                <li><a href="../layout/fixed.html"><i class="fa fa-circle-o"></i> Fixed</a></li>
-                                <li><a href="../layout/collapsed-sidebar.html"><i class="fa fa-circle-o"></i> Collapsed Sidebar</a></li>
-                            </ul>
+                        <li class="{% if route == 'configuration' %}active{% endif %}">
+                            <a href="{{ path('configuration') }}"><i class="fa fa-gears"></i> <span>Configuration</span></a>
                         </li>
-                        <li><a href="https://adminlte.io/docs"><i class="fa fa-book"></i> <span>Documentation</span></a></li>
                     {% else %}
                         <li><a href="#"><i class="fa fa-book"></i> <span>Please log in...</span></a></li>
                     {% endif %}
@@ -218,22 +229,22 @@
 <!-- ./wrapper -->
 
 <!-- jQuery 3 -->
-<script src="{{ asset('js/jQuery/jquery.min.js') }}"></script>
-<!-- Bootstrap 3.3.7 -->
-<script src="{{ asset('js/bootstrap/bootstrap.min.js') }}"></script>
-<!-- SlimScroll -->
-{#<script src="../../bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>#}
-<!-- FastClick -->
-{#<script src="../../bower_components/fastclick/lib/fastclick.js"></script>#}
-<!-- AdminLTE App -->
-<script src="{{ asset('js/admin-lte/adminlte.min.js') }}"></script>
-<!-- AdminLTE for demo purposes -->
-{#<script src="../../dist/js/demo.js"></script>#}
-<script>
-    $(document).ready(function () {
-        $('.sidebar-menu').tree()
-    })
-</script>
+{% block jQuery %}<script src="{{ asset('js/jQuery/jquery.min.js') }}"></script>{% endblock %}
+
+{% block theme_scripts %}
+    <script src="{{ asset('js/bootstrap/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/admin-lte/adminlte.min.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            $('.sidebar-menu').tree()
+        })
+    </script>
+{% endblock %}
+
+{# Fos JS Routing #}
+<script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+<script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+
 {% block javascripts %}{% endblock %}
 </body>
 </html>

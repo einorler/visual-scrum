@@ -1,5 +1,12 @@
+fos_js_routing:
+    resource: "@FOSJsRoutingBundle/Resources/config/routing/routing.xml"
+
 app:
     resource: '@AppBundle/Controller/'
+    type: annotation
+
+trello:
+    resource: '@TrelloBundle/Controller/'
     type: annotation
 
 fos_user:

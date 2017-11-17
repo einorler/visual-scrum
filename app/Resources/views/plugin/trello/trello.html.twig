@@ -1,0 +1,131 @@
+{% extends '::base.html.twig' %}
+
+{% block content_header %}{% endblock %}
+
+{% block content %}
+    <div class="register-box">
+        <div class="register-logo" style="font-size: 80px; padding-top: 80px"><i class="fa fa-refresh"></i></div>
+        <div id="trelloSynchStatus" class="register-logo">SYNCHRONIZING...</div>
+    </div>
+{% endblock %}
+
+{% block jQuery %}<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>{% endblock %}
+
+{% block javascripts %}
+    {#Trello API#}
+    <script src="https://trello.com/1/client.js?key={{ app_key }}"></script>
+    <script>
+        var boardList = [];
+        var processedBoardList = [];
+        // Needed to handle asynchronous calls to trello API
+        var callsSent = 0;
+        var callsProcessed = 0;
+
+        $(window).load(function(){
+            // Firstly, remove any authentication token if already set
+            Trello.deauthorize();
+
+            Trello.authorize({
+                name: "Not VS",
+                expiration: "1hour",
+                scope: {
+                    read: 'true',
+                    write: 'true'
+                },
+                success: function () {
+                    // on success start the initiation of the data acquisition
+                    getBoards();
+                },
+                error: error
+            });
+        });
+
+        // simply calls the API and passes the metadata of boards to `getLists` method
+        function getBoards() {
+            Trello.get('/members/me/boards/', [], getLists, error)
+        }
+
+        // Gets the boardList of each board and passes them for filtering
+        var getLists = function(boards) {
+            $.each(boards, function(index, board) {
+                // Notifies that an asynchronous call to the API has been sent
+                callsSent++;
+                Trello.get('/boards/' + board.id + '/lists', [], function(listsArray) {
+                    // Notifies that an asynchronous call has been handled
+                    callsProcessed++;
+
+                    $.each(listsArray, function(index, list) {
+                        if (list.name == '{{ app.user.configuration.metas['list'] }}') {
+                            // Adds a list to the global array
+                            board.list = list.id;
+                            boardList.push(board);
+                        }
+                    });
+
+                    // This is called every time, because there is no way of knowing which is the last
+                    // asynchronous call to the API
+                    processBoards();
+                }, error);
+            });
+        };
+
+        // Processes the already filter global boardList array.
+        function processBoards() {
+            // The method is called throughout the building of the boardList array but this ensures that
+            // the function will only be processed when all the boardList will are built
+            if (callsSent != callsProcessed) {
+                return;
+            }
+
+            $.each(boardList, function (index, board) {
+                callsSent++;
+                Trello.get('/lists/' + board.list + '/cards', [], function (cards) {
+                    callsProcessed++;
+
+                    finalizeBoardProcessing(board, cards)
+
+                    sendData()
+                }, error);
+            });
+        }
+
+        // Adds cards to board and board to final processedBoardList global array
+        function finalizeBoardProcessing(board, cards) {
+            board.cards = [];
+
+            $.each(cards, function (index, card) {
+                board.cards.push(card.name);
+            });
+
+            processedBoardList.push(board);
+        }
+
+        // Final function for sending data to backend via ajax
+        var sendData = function () {
+            // Same as before
+            if (callsSent != callsProcessed) {
+                return;
+            }
+
+            $.ajax(
+                Routing.generate('trello_ajax') + '?XDEBUG_SESSION_START=PHPSTORM',
+                {
+                    method: 'POST',
+                    data: {boards: processedBoardList},
+                    contentType: 'application/json',
+                    success: function (data) {
+                        $('#trelloSynchStatus').text('Success!');
+                    },
+                    error: error
+                }
+            );
+
+            // Remove authentication token after all is said and done
+            Trello.deauthorize();
+        };
+
+        var error = function () {
+            $('#trelloSynchStatus').text('Error!');
+        };
+    </script>
+{% endblock %}
