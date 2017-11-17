@@ -100,7 +100,7 @@ class DefaultController extends Controller
         } catch (\Exception $e) {
             $this->addFlash('error', $e->getMessage());
 
-            return new RedirectResponse('/');
+            return new RedirectResponse($this->get('router')->generate('homepage'));
         }
     }
 

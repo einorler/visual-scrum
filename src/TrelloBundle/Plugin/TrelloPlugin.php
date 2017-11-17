@@ -9,6 +9,7 @@ use AppBundle\Entity\UserStory;
 use AppBundle\Plugin\PluginInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\UserBundle\Model\UserInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\Exception\InvalidArgumentException;
 use Twig\Environment;
 
@@ -25,13 +26,20 @@ class TrelloPlugin implements PluginInterface
     private $twig;
 
     /**
-     * @param EntityManagerInterface $em
-     * @param Environment $twig
+     * @var RouterInterface
      */
-    public function __construct(EntityManagerInterface $em, Environment $twig)
+    private $router;
+
+    /**
+     * @param EntityManagerInterface $em
+     * @param Environment            $twig
+     * @param RouterInterface        $router
+     */
+    public function __construct(EntityManagerInterface $em, Environment $twig, RouterInterface $router)
     {
         $this->em = $em;
         $this->twig = $twig;
+        $this->router = $router;
     }
 
     /**
@@ -47,7 +55,7 @@ class TrelloPlugin implements PluginInterface
      */
     public function getSynchronizationUrl(): string
     {
-        return 'api/trello';
+        return $this->router->generate('trello');
     }
 
     /**

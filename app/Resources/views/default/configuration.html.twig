@@ -67,7 +67,7 @@
     <script>
         $('#configurationType').change(function () {
             $.ajax(
-                '/_configuration_form_data?XDEBUG_SESSION_START=PHPSTORM',
+                '{{ path('configuration_form_data') }}?XDEBUG_SESSION_START=PHPSTORM',
                 {
                     data: { plugin: $('#configurationType').val() },
                     success: function (data) {
