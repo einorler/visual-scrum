@@ -43,5 +43,20 @@
             </div>
             <!-- /.box -->
         </div>
+        <din class="col-md-6">
+            <div class="box">
+                <div class="box-header">
+                    <h4 class="box-title">Generate a Diagram</h4>
+                </div>
+                <div class="box-body">
+                    <a class="btn btn-app" href="{{ path('use-case-generation', {id: project.id}) }}">
+                        <i class="fa fa-commenting"></i> Use case
+                    </a>
+                    <a class="btn btn-app" href="#">
+                        <i class="fa fa-exchange"></i> Activity
+                    </a>
+                </div>
+            </div>
+        </din>
     </div>
 {% endblock %}
