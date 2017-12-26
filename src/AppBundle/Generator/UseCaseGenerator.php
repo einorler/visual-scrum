@@ -34,7 +34,8 @@ class UseCaseGenerator
                 continue;
             }
 
-
+            $useCase = $this->getUseCase($story);
+            $useCases[$useCase['actor']][] = $useCase['use_case'];
         }
 
         $this->em->flush();
@@ -42,6 +43,27 @@ class UseCaseGenerator
         return $useCases;
     }
 
+    /**
+     * @param UserStory $story
+     *
+     * @return array
+     */
+    private function getUseCase(UserStory $story): array
+    {
+        $matches = [];
+        $useCase = [];
+        preg_match('/^Kaip (.*) a(s|š) turiu gal(e|ė)ti (.*)$/U', $story->getTitle(), $matches);
+        $useCase['actor'] = $matches[1];
+        $useCase['use_case'] = $matches[4];
+
+        return $useCase;
+    }
+
+    /**
+     * @param UserStory $story
+     *
+     * @return bool
+     */
     private function isStoryValid(UserStory $story): bool
     {
         if (null === $story->isValid()) {
@@ -56,7 +78,7 @@ class UseCaseGenerator
      */
     private function validateStory(UserStory $story): void
     {
-        if (!preg_match('/^Kaip \w* a. turiu gal.ti \w*$/?', $story->getTitle())) {
+        if (!preg_match('/^Kaip .* as|š turiu gale|ėti .*$/', $story->getTitle())) {
             $story->setValid(false);
             $this->em->persist($story);
 
