@@ -6,3 +6,6 @@ services:
         class: AppBundle\Generator\UseCaseGenerator
         arguments:
           - '@doctrine.orm.entity_manager'
+
+    app.client.yuml:
+        class: AppBundle\Client\yUmlClient

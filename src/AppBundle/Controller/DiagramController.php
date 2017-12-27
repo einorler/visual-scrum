@@ -22,6 +22,7 @@ class DiagramController extends Controller
     {
         $userStories = $this->getDoctrine()->getRepository(Project::class)->find($id)->getUserStories();
         $useCases = $this->get('app.generator.use_case')->generateUseCases($userStories);
+        $this->get('app.client.yuml')->fetchUseCaseDiagram($useCases);
 
         $this->redirectToRoute('project', ['id' => $id]);
     }

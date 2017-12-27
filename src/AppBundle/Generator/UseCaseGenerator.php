@@ -53,8 +53,10 @@ class UseCaseGenerator
         $matches = [];
         $useCase = [];
         preg_match('/^Kaip (.*) a(s|š) turiu gal(e|ė)ti (.*)$/U', $story->getTitle(), $matches);
-        $useCase['actor'] = $matches[1];
-        $useCase['use_case'] = $matches[4];
+
+        // TODO: remove the call to `removeNonEnglishLetters` as soon as an issue with guzzle is resolved
+        $useCase['actor'] = $this->removeNonEnglishLetters($matches[1]);
+        $useCase['use_case'] = $this->removeNonEnglishLetters($matches[4]);
 
         return $useCase;
     }
@@ -87,5 +89,22 @@ class UseCaseGenerator
 
         $story->setValid(true);
         $this->em->persist($story);
+    }
+
+    /**
+     * This functionality is temporary and only here because of a potential bug in guzzle
+     * which does not encode the uri normally when lithuanian letters are present. As such
+     * the request to yUml fails.
+     *
+     * @param string $phrase
+     *
+     * @return string
+     */
+    private function removeNonEnglishLetters(string $phrase)
+    {
+        $search = ['Ą', 'ą', 'Č', 'č', 'Ę', 'ę', 'Ė', 'ė', 'Į', 'į', 'Š', 'š', 'Ų', 'ų', 'Ū', 'ū', 'Ž', 'ž'];
+        $replace = ['A', 'a', 'C', 'c', 'E', 'e', 'E', 'e', 'I', 'i', 'S', 's', 'U', 'u', 'U', 'u', 'Z', 'z'];
+
+        return str_replace($search, $replace, $phrase);
     }
 }
