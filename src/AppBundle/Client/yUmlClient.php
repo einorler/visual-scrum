@@ -3,12 +3,12 @@
 namespace AppBundle\Client;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Request;
 
 class yUmlClient
 {
     const HOST = 'http://yuml.me/diagram/scruffy/';
-    const PATH = __DIR__ . '/../../../web/img/diagrams/';
+    const WEB_DIR = __DIR__ . '/../../../web';
+    const PATH = '/img/diagrams/';
 
     /**
      * @var Client
@@ -23,26 +23,25 @@ class yUmlClient
     /**
      * @param array $useCases
      *
+     * @return string
+     *
      * @throws \Exception
      */
-    public function fetchUseCaseDiagram(array $useCases): void
+    public function fetchUseCaseDiagram(array $useCases): string
     {
         $query = $this->queryfyUseCaseArray($useCases);
+
         $uri = self::HOST . 'usecase/' . $query;
-        $filename = self::PATH . 'file.png';
-//        $response = $this->client->request('GET', self::HOST . 'usecase/' . $query);
+        $filename = self::PATH . uniqid() . '.png';
 
-        $dirname = dirname($filename);
-        if (!is_dir($dirname))
-        {
-            mkdir($dirname, 0755, true);
+        if (!is_dir(self::WEB_DIR . self::PATH)) {
+            mkdir(self::WEB_DIR . self::PATH, 0755, true);
         }
-        $myFile = fopen($filename, 'w') or die('Problems');
-        $request = $this->client->get($uri, ['save_to' => $myFile]);
 
-//        file_put_contents(self::PATH . rand(0, 10000) . '.png', file_get_contents($uri));
+        $myFile = fopen(self::WEB_DIR . $filename, 'w');
+        $this->client->get($uri, ['save_to' => $myFile]);
 
-        $a = 1;
+        return $filename;
     }
 
     /**

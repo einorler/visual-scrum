@@ -3,6 +3,7 @@
 namespace AppBundle\Generator;
 
 use AppBundle\Entity\UserStory;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 
 class UseCaseGenerator
@@ -21,7 +22,7 @@ class UseCaseGenerator
     }
 
     /**
-     * @param UserStory[] $userStories
+     * @param UserStory[]|Collection $userStories
      *
      * @return array
      */

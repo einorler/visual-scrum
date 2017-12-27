@@ -10,17 +10,21 @@ use Doctrine\ORM\Mapping as ORM;
 class AbstractDiagram
 {
     /**
+     * @var string
+     *
      * @ORM\Column(type="string")
      */
     private $title;
 
     /**
+     * @var string
+     * 
      * @ORM\Column(type="string")
      */
     private $file;
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getTitle()
     {
@@ -28,7 +32,7 @@ class AbstractDiagram
     }
 
     /**
-     * @param mixed $title
+     * @param string $title
      */
     public function setTitle($title)
     {
@@ -36,7 +40,7 @@ class AbstractDiagram
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getFile()
     {
@@ -44,7 +48,7 @@ class AbstractDiagram
     }
 
     /**
-     * @param mixed $file
+     * @param string $file
      */
     public function setFile($file)
     {
