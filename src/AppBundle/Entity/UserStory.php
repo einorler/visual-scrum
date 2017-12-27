@@ -35,6 +35,13 @@ class UserStory
     private $project;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $valid;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -72,5 +79,21 @@ class UserStory
     public function setProject(?Project $project)
     {
         $this->project = $project;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isValid()
+    {
+        return $this->valid;
+    }
+
+    /**
+     * @param boolean $valid
+     */
+    public function setValid($valid)
+    {
+        $this->valid = $valid;
     }
 }

@@ -18,7 +18,7 @@ class UseCaseDiagram extends AbstractDiagram
     private $id;
 
     /**
-     * @var User
+     * @var Project
      *
      * @ORM\ManyToOne(targetEntity="Project", inversedBy="useCaseDiagrams")
      * @ORM\JoinColumn(name="project_id", referencedColumnName="id")
@@ -34,7 +34,7 @@ class UseCaseDiagram extends AbstractDiagram
     }
 
     /**
-     * @return User
+     * @return Project
      */
     public function getProject()
     {
@@ -42,9 +42,9 @@ class UseCaseDiagram extends AbstractDiagram
     }
 
     /**
-     * @param User $project
+     * @param Project $project
      */
-    public function setProject($project)
+    public function setProject(Project $project)
     {
         $this->project = $project;
     }
