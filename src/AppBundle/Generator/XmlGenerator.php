@@ -4,7 +4,7 @@ namespace AppBundle\Generator;
 
 class XmlGenerator
 {
-    private $initial = '<?xml version="1.0" encoding="UTF-8"?><uml:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_diagram" name="model"></uml:Model>';
+    private $initial = '<?xml version="1.0" encoding="UTF-8"?><uml:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_diagram" name="model">';
 
     /**
      * @param array $data The necessary data for UML diagram creation
@@ -15,18 +15,19 @@ class XmlGenerator
      */
     public function generateUseCaseXml(array $data): string
     {
-        $xml = new \SimpleXMLElement($this->initial);
+        $xml = $this->initial;
 
         foreach ($data as $actor => $useCases) {
             $this->addActorNode($actor, $xml);
 
             foreach ($useCases as $useCase) {
                 $this->addUseCaseNode($useCase, $xml);
+                $this->addAssociationNode($useCase, $actor, $xml);
             }
         }
 
-        $string = $xml->asXML();
-        echo $string;
+        $xml .= '</uml:Model>';
+        echo $xml;
     }
 
     /**
@@ -43,45 +44,72 @@ class XmlGenerator
 
     /**
      * @param string $actor
-     * @param \SimpleXMLElement $xml
+     * @param string $xml
      */
-    private function addActorNode(string $actor, \SimpleXMLElement $xml): void
+    private function addActorNode(string $actor, string &$xml): void
     {
-        $element = $xml->addChild('packagedElement');
-        $element->addAttribute('xsi:type', 'uml:Actor');
-        $element->addAttribute('xmi:id', $this->getIdisifiedString($actor));
-        $element->addAttribute('name', $actor);
-
-        $annotations = $element->addChild('eAnnotations');
-        $annotations->addAttribute('xmi:id', $this->getIdisifiedString($actor) . '_diagram');
-        $annotations->addAttribute('source', 'visual-scrum');
-
-        $details = $annotations->addChild('details');
-        $details->addAttribute('xmi:id', $this->getIdisifiedString($actor) . '_details');
-        $details->addAttribute('key', 'uuid');
-        $details->addAttribute('value', uniqid('_'));
+        $xml .= sprintf(
+            '<packagedElement xsi:type="uml:Actor" xmi:id="%s" name="%s">' . PHP_EOL,
+            $this->getIdisifiedString($actor),
+            $actor
+            );
+        $xml .= sprintf(
+            '<eAnnotations xmi:id="%s" source="visual-scrum">' . PHP_EOL,
+            $this->getIdisifiedString($actor) . '_annotation'
+        );
+        $xml .= sprintf(
+            '<details xmi:id="%s" key="uuid" value="%s"/>' . PHP_EOL,
+            $this->getIdisifiedString($actor) . '_details',
+            uniqid('_')
+        );
+        $xml .= "</eAnnotations>\n</packagedElement>\n";
     }
 
     /**
      * @param string $useCase
-     * @param \SimpleXMLElement $xml
+     * @param string $xml
      */
-    private function addUseCaseNode(string $useCase, \SimpleXMLElement $xml): void
+    private function addUseCaseNode(string $useCase, string &$xml): void
     {
-        // xsi:type="uml:UseCase" xmi:id="_use_case_1_diagram" name="UseCase"
-        $element = $xml->addChild('packagedElement');
-        $element->addAttribute('xsi:type', 'uml:UseCase');
-        $element->addAttribute('xmi:id', $this->getIdisifiedString($useCase));
-        $element->addAttribute('name', $useCase);
+        $xml .= sprintf(
+            '<packagedElement xsi:type="uml:UseCase" xmi:id="%s" name="%s">' . PHP_EOL,
+            $this->getIdisifiedString($useCase),
+            $useCase
+        );
+        $xml .= sprintf(
+            '<eAnnotations xmi:id="%s" source="visual-scrum">' . PHP_EOL,
+            $this->getIdisifiedString($useCase) . '_annotation'
+        );
+        $xml .= sprintf(
+            '<details xmi:id="%s" key="uuid" value="%s"/>' . PHP_EOL,
+            $this->getIdisifiedString($useCase) . '_details',
+            uniqid('_')
+        );
+        $xml .= "</eAnnotations>\n</packagedElement>\n";
+    }
 
-        $annotations = $element->addChild('eAnnotations');
-        $annotations->addAttribute('xmi:id', $this->getIdisifiedString($useCase) . '_diagram');
-        $annotations->addAttribute('source', 'visual-scrum');
-
-        $details = $annotations->addChild('details');
-        $details->addAttribute('xmi:id', $this->getIdisifiedString($useCase) . '_details');
-        $details->addAttribute('key', 'uuid');
-        $details->addAttribute('value', uniqid('_'));
+    /**
+     * @param string $useCase
+     * @param string $actor
+     * @param string $xml
+     */
+    private function addAssociationNode(string $useCase, string $actor, string &$xml): void
+    {
+        $xml .= sprintf(
+            '<packagedElement xsi:type="uml:UseCase" xmi:id="%s" name="%s">' . PHP_EOL,
+            $this->getIdisifiedString($useCase),
+            $useCase
+        );
+        $xml .= sprintf(
+            '<eAnnotations xmi:id="%s" source="visual-scrum">' . PHP_EOL,
+            $this->getIdisifiedString($useCase) . '_annotation'
+        );
+        $xml .= sprintf(
+            '<details xmi:id="%s" key="uuid" value="%s"/>' . PHP_EOL,
+            $this->getIdisifiedString($useCase) . '_details',
+            uniqid('_')
+        );
+        $xml .= "</eAnnotations>\n</packagedElement>\n";
     }
 
     private function getIdisifiedString(string $string): string
