@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\Project;
 use AppBundle\Entity\UseCaseDiagram;
+use AppBundle\Generator\XmlGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,11 +30,16 @@ class DiagramController extends Controller
 
         try {
             $filename = $this->get('app.client.yuml')->fetchUseCaseDiagram($useCases);
+            $xmlGenerator = new XmlGenerator();
+            $xmlFileName = uniqid() . '.xmi';
+            $fullName = __DIR__ . '/../../../web/diagrams/' . $xmlFileName;
+            file_put_contents($fullName, $xmlGenerator->generateUseCaseXml($useCases));
 
             $diagram = new UseCaseDiagram();
             $diagram->setProject($project);
             $diagram->setFile($filename);
             $diagram->setTitle($project->getTitle());
+            $diagram->setXmiFile($xmlFileName);
 
             $em->persist($diagram);
             $em->flush($diagram);
