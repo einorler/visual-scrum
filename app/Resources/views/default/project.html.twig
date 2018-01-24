@@ -26,12 +26,22 @@
                             <tr>
                                 <th style="width: 10px">#</th>
                                 <th>Title</th>
+                                <th>Valid</th>
                             </tr>
                             {% set no = 1 %}
                             {% for story in project.userStories %}
                                 <tr>
                                     <td>{{ no }}</td>{% set no = no + 1 %}
-                                    <td>{{ story.title }}</a></td>
+                                    <td>{{ story.title }}</td>
+                                    <td>
+                                        {% if story.valid is defined and story.valid is not null %}
+                                            {% if story.valid %}
+                                                <i class="fa fa-fw fa-check green icon-success"></i>
+                                            {% else %}
+                                                <i class="fa fa-fw fa-close"></i>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
