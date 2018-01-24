@@ -36,9 +36,9 @@
                                     <td>
                                         {% if story.valid is defined and story.valid is not null %}
                                             {% if story.valid %}
-                                                <i class="fa fa-fw fa-check green icon-success"></i>
+                                                <i class="fa fa-fw fa-check green icon-success" style="color: #00a65a"></i>
                                             {% else %}
-                                                <i class="fa fa-fw fa-close"></i>
+                                                <i class="fa fa-fw fa-close" style="color: #dd4b39"></i>
                                             {% endif %}
                                         {% endif %}
                                     </td>
@@ -87,10 +87,54 @@
                 </div>
                 <div class="box-body">
                     {% for diagram in project.useCaseDiagrams %}
-                        <img src="{{ asset(diagram.file) }}" alt="{{ diagram.title }}" width="24%">
+                        <img class="diagram-image" src="{{ asset(diagram.file) }}" alt="{{ diagram.title }}" width="24%" data-toggle="modal" data-target="#modal-default" style="cursor: pointer;" data-xmi="{{ diagram.xmiFile }}">
                     {% endfor %}
                 </div>
             </div>
         </din>
+        <div class="modal fade" id="modal-default">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title">Diagram</h4>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img class="modal-diagram-image" src="" width="50%">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                        <a href="" class="download-diagram-image" download style="color: #ffffff;">
+                            <button type="button" class="btn btn-warning">
+                                Download image
+                            </button>
+                        </a>
+                        <a href="" class="download-diagram-xmi" download style="color: #ffffff;">
+                            <button type="button" class="btn btn-primary">
+                                Download xmi
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+            var $diagrams = $('.diagram-image');
+
+
+            $diagrams.on('click', function () {
+                $('.modal-diagram-image').attr('src', $(this).attr('src'));
+                $('.download-diagram-image').attr('href', $(this).attr('src'));
+                $('.download-diagram-xmi').attr('href', '/diagrams/' + $(this).data('xmi'));
+            });
+        });
+    </script>
 {% endblock %}
