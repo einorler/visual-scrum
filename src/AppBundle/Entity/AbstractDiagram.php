@@ -24,6 +24,13 @@ class AbstractDiagram
     private $file;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(type="string")
+     */
+    private $xmiFile;
+
+    /**
      * @return string
      */
     public function getTitle()
@@ -53,5 +60,21 @@ class AbstractDiagram
     public function setFile($file)
     {
         $this->file = $file;
+    }
+
+    /**
+     * @return string
+     */
+    public function getXmiFile()
+    {
+        return $this->xmiFile;
+    }
+
+    /**
+     * @param string $xmiFile
+     */
+    public function setXmiFile($xmiFile)
+    {
+        $this->xmiFile = $xmiFile;
     }
 }
