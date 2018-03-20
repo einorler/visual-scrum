@@ -55,10 +55,15 @@ class DefaultController extends Controller
                     throw new \Exception('Plugin data must be persisted.');
                 }
 
+                if (!$request->get('language') || !in_array($request->get('language'), ['en', 'lt'])) {
+                    throw new \Exception('A valid language must be set.');
+                }
+
                 if (!in_array($plugin, $pluginManager->getAvailablePlugins())) {
                     throw new \Exception('There is no plugin with the name `' . $plugin . '` configured');
                 }
 
+                $configuration->setLanguage($request->get('language'));
                 $pluginManager->submitConfiguration($request->request->all(), $plugin, $configuration);
                 $user->setConfiguration($configuration);
 
