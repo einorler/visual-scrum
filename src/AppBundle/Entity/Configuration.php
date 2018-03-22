@@ -23,6 +23,11 @@ class Configuration
     private $type;
 
     /**
+     * @ORM\Column(type="string")
+     */
+    private $language;
+
+    /**
      * @var array
      *
      * @ORM\Column(type="array")
@@ -51,6 +56,22 @@ class Configuration
     public function setType(string $type)
     {
         $this->type = $type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLanguage(): ?string
+    {
+        return $this->language;
+    }
+
+    /**
+     * @param mixed $language
+     */
+    public function setLanguage(string $language)
+    {
+        $this->language = $language;
     }
 
     /**

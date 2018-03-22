@@ -26,7 +26,16 @@ class DiagramController extends Controller
         /** @var Project $project */
         $project = $em->getRepository(Project::class)->find($id);
         $userStories = $project->getUserStories();
-        $useCases = $this->get('app.generator.use_case')->generateUseCases($userStories);
+        $language = $this->getUser()->getConfiguration()->getLanguage();
+        $generator = $this->get('app.generator.use_case')->getGenerator($language);
+
+        if (!$generator) {
+            $this->addFlash('error', 'Invalid language set in configuration');
+
+            return $this->redirectToRoute('project', ['id' => $id]);
+        }
+
+        $useCases = $generator->generateUseCases($userStories);
 
         try {
             $filename = $this->get('app.client.yuml')->fetchUseCaseDiagram($useCases);

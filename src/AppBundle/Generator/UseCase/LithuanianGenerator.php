@@ -1,47 +1,17 @@
 <?php
 
-namespace AppBundle\Generator;
+namespace AppBundle\Generator\UseCase;
 
 use AppBundle\Entity\UserStory;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\EntityManagerInterface;
 
-class UseCaseGenerator
+class LithuanianGenerator extends AbstractUseCaseGenerator
 {
     /**
-     * @var EntityManagerInterface
+     * {@inheritdoc}
      */
-    private $em;
-
-    /**
-     * @param EntityManagerInterface $em
-     */
-    public function __construct(EntityManagerInterface $em)
+    public function getLocale(): string
     {
-        $this->em = $em;
-    }
-
-    /**
-     * @param UserStory[]|Collection $userStories
-     *
-     * @return array
-     */
-    public function generateUseCases($userStories): array
-    {
-        $useCases = [];
-
-        foreach ($userStories as $story) {
-            if (!$this->isStoryValid($story)) {
-                continue;
-            }
-
-            $useCase = $this->getUseCase($story);
-            $useCases[$useCase['actor']][] = $useCase['use_case'];
-        }
-
-        $this->em->flush();
-
-        return $useCases;
+        return 'lt';
     }
 
     /**
@@ -49,7 +19,7 @@ class UseCaseGenerator
      *
      * @return array
      */
-    private function getUseCase(UserStory $story): array
+    protected function getUseCase(UserStory $story): array
     {
         $matches = [];
         $useCase = [];
@@ -67,7 +37,7 @@ class UseCaseGenerator
      *
      * @return bool
      */
-    private function isStoryValid(UserStory $story): bool
+    protected function isStoryValid(UserStory $story): bool
     {
         if (null === $story->isValid()) {
             $this->validateStory($story);
@@ -79,7 +49,7 @@ class UseCaseGenerator
     /**
      * @param UserStory $story
      */
-    private function validateStory(UserStory $story): void
+    protected function validateStory(UserStory $story): void
     {
         if (!preg_match('/^Kaip .* as|š turiu gale|ėti .*$/', $story->getTitle())) {
             $story->setValid(false);
@@ -101,7 +71,7 @@ class UseCaseGenerator
      *
      * @return string
      */
-    private function removeNonEnglishLetters(string $phrase)
+    protected function removeNonEnglishLetters(string $phrase)
     {
         $search = ['Ą', 'ą', 'Č', 'č', 'Ę', 'ę', 'Ė', 'ė', 'Į', 'į', 'Š', 'š', 'Ų', 'ų', 'Ū', 'ū', 'Ž', 'ž'];
         $replace = ['A', 'a', 'C', 'c', 'E', 'e', 'E', 'e', 'I', 'i', 'S', 's', 'U', 'u', 'U', 'u', 'Z', 'z'];
