@@ -3,7 +3,18 @@ services:
         class: AppBundle\Plugin\PluginManager
 
     app.generator.use_case:
-        class: AppBundle\Generator\UseCaseGenerator
+        class: AppBundle\Generator\UseCase\UseCaseGenerator
+        calls:
+            - { method: addGenerator, arguments: ['@app.generator.use_case.lithuanian'] }
+            - { method: addGenerator, arguments: ['@app.generator.use_case.english'] }
+
+    app.generator.use_case.lithuanian:
+        class: AppBundle\Generator\UseCase\LithuanianGenerator
+        arguments:
+          - '@doctrine.orm.entity_manager'
+
+    app.generator.use_case.english:
+        class: AppBundle\Generator\UseCase\EnglishGenerator
         arguments:
           - '@doctrine.orm.entity_manager'
 
