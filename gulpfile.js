@@ -18,12 +18,13 @@ var dir = {
     npm: './node_modules/'
 };
 
-gulp.task('default', function() {
+gulp.task('default', function(done) {
     loadJquery();
     loadBootstrap();
     loadAdminLte();
     loadFontAwesome();
     loadIonicons();
+done();
 });
 
 function loadIonicons() {

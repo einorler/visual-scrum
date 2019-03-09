@@ -131,6 +131,9 @@
                     </div>
                     <div class="modal-body text-center">
                         <p>This functionality is still under development.</p>
+                        <ul>
+                            <li class="drag">Test</li>
+                        </ul>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
@@ -144,6 +147,7 @@
 {% endblock %}
 
 {% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/@shopify/draggable@1.0.0-beta.5/lib/draggable.bundle.js"></script>
     <script>
         $(document).ready(function () {
             var $diagrams = $('.diagram-image');
@@ -153,6 +157,11 @@
                 $('.download-diagram-image').attr('href', $(this).attr('src'));
                 $('.download-diagram-xmi').attr('href', '/diagrams/' + $(this).data('xmi'));
             });
+
+            const draggable = new Draggable(document.querySelectorAll('ul'), {
+                draggable: 'li.drag'
+            });
+
         });
     </script>
 {% endblock %}
