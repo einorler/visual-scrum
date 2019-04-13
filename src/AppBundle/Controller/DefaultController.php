@@ -129,10 +129,11 @@ class DefaultController extends Controller
      * @param $id
      *
      * @return Response
+     *
+     * @throws \Exception
      */
     public function validationAction(Request $request, $id)
     {
-        return new JsonResponse('super duper test');
         $response = [];
         $project = $this->getDoctrine()->getRepository(Project::class)->find($id);
         /** @var Configuration $configuration */
@@ -146,18 +147,63 @@ class DefaultController extends Controller
         }
 
         $this->get('app.generator.dictionary')->generateDictionary($project);
+        $response['similar_nouns'] = $this->get('app.generator.dictionary')->getSimilarNouns($project);
 
         /** @var UserStory $story */
         foreach ($project->getUserStories() as $story) {
-            $response[$story->getId()] = [
+            $storyDictionary = $project->getDictionaryForStory($story);
+            $generator->validateStory($story);
+
+            $response['stories'][] = [
+                'id' => $story->getId(),
                 'title' => $story->getTitle(),
                 'valid' => $generator->isStoryValid($story),
-                'dictionary' => $project->getDictionaryForStory($story),
+                'dictionary' => $storyDictionary,
             ];
+
+            $this->get('doctrine.orm.entity_manager')->persist($story);
         }
 
-        $this->getDoctrine()->getEntityManager()->flush();
+        $this->get('doctrine.orm.entity_manager')->flush();
 
         return new JsonResponse($response);
+    }
+
+    /**
+     * @Route("/user_story/{id}", name="user_story_update")
+     * @Method("POST")
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return Response
+     *
+     * @throws \Exception
+     */
+    public function updateStoryAction(Request $request, $id)
+    {
+        $userStory = $this->getDoctrine()->getRepository(UserStory::class)->find($id);
+        /** @var Configuration $configuration */
+        $configuration = $this->getUser()->getConfiguration();
+        $generator = $this->get('app.generator.use_case')->getGenerator($configuration->getLanguage());
+
+        if (!$userStory) {
+            return new JsonResponse('Story not found', Response::HTTP_NOT_FOUND);
+        } elseif (!$generator) {
+            return new JsonResponse('No generator found for validation', Response::HTTP_NOT_FOUND);
+        }
+
+        $title = $request->request->get('title');
+
+        if ($title && $userStory->getTitle() != $title) {
+            $userStory->setTitle($title);
+            $userStory->setChanged(true);
+            $generator->validateStory($userStory);
+        }
+
+        $this->get('doctrine.orm.entity_manager')->persist($userStory);
+        $this->get('doctrine.orm.entity_manager')->flush();
+
+        return new JsonResponse(['valid' => $userStory->isValid()]);
     }
 }

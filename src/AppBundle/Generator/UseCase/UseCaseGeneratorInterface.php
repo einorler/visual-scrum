@@ -25,4 +25,9 @@ interface UseCaseGeneratorInterface
      * @return bool
      */
     public function isStoryValid(UserStory $story): bool;
+
+    /**
+     * @param UserStory $story
+     */
+    public function validateStory(UserStory $story): void;
 }

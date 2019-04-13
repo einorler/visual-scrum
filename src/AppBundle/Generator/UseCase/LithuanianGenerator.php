@@ -49,7 +49,7 @@ class LithuanianGenerator extends AbstractUseCaseGenerator
     /**
      * @param UserStory $story
      */
-    protected function validateStory(UserStory $story): void
+    public function validateStory(UserStory $story): void
     {
         if (!preg_match('/^Kaip .* as|š turiu gale|ėti .*$/', $story->getTitle())) {
             $story->setValid(false);

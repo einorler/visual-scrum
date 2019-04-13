@@ -23,10 +23,21 @@ class TestCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $nouns = $this->getContainer()
-            ->get('app.client.parts_of_speech')
-            ->getNounsFromText('as a good doctor I should be able to cure people.');
+        $similarNouns = [];
+        $nouns = ['car', 'vampire', 'emperor', 'tree', 'soap', 'soad', 'stargazer', 'glastenbury', 'starlazer', 'vamrire', 'vamkirer'];
 
-        $a =1;
+        foreach ($nouns as $key => $a) {
+            for ($i = $key + 1; $i < count($nouns); $i++) {
+                $similarity = 0;
+                $b = $nouns[$i];
+                similar_text($a, $b, $similarity);
+
+                if ($similarity >= 80) {
+                    $similarNouns[] = [$a, $b];
+                }
+            }
+        }
+
+        echo var_dump($similarNouns);
     }
 }

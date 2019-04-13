@@ -149,10 +149,7 @@
                         <h4 class="modal-title">Activity Diagram</h4>
                     </div>
                     <div class="modal-body text-center">
-                        <p>This functionality is still under development.</p>
-                        <ul>
-                            <li class="drag">Test</li>
-                        </ul>
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
@@ -182,7 +179,17 @@
                             <img src="{{ asset('img/Spinner.gif') }}" alt="">
                         </div>
                         <div class="validation-step hidden" id="validation-step-two">
+                            <div class="invalid-stories">
+                                <h4>Some stories were invald. Would you like to edit them?</h4>
 
+                                <ul class="todo-list ui-sortable invalid-stories-edit">
+                                </ul>
+                            </div>
+
+                            <div class="similar-nouns">
+                                <h4>We found similarities, which ones of these should we keep:</h4>
+
+                            </div>
                         </div>
                         <div class="validation-step hidden" id="validation-step-three">
                             <div class="alert alert-success alert-dismissible">
@@ -231,7 +238,94 @@
                     method: "post",
                     success: function (response) {
                         $('#validation-step-one').addClass('hidden');
-                        $('#validation-step-three').removeClass('hidden');
+                        var isFinished = true;
+
+                        var length = response.stories.length;
+
+                        for (var i = 0; i < length; i++) {
+                            var story = response.stories[i];
+                            var $edit = $('<i class="fa fa-edit edit" data-action="read"></i>');
+                            var $save = $('<i class="fa fa-save save" data-url="/user_story/' + story.id + '"></i>');
+                            var check = '';
+                            var uncheck = '';
+
+                            if (story.valid) {uncheck = 'hidden'} else {check = 'hidden'; isFinished = false;}
+
+
+                            var $li = $(
+                                '<li style="text-align: left">\n' +
+                                '<i class="fa fa-fw fa-check green icon-success ' + check + ' " style="color: #00a65a"></i>\n' +
+                                '<i class="fa fa-fw fa-close red icon-danger ' + uncheck + '" style="color: #dd4b39"></i>\n' +
+                                '<span class="text" >' + story.title + '</span>\n' +
+                                '<input type="text" class="story-edit hidden form-control" value="' + story.title + '" style="width: 70%; display: inline">' +
+                                '<img src="{{ asset('img/Spinner.gif') }}" style="height: 20px" class="spinner hidden">' +
+                                '</li>'
+                            );
+                            var $tools = $('<div class="tools"></div>');
+                            $tools.append($edit);
+                            $tools.append($save);
+                            $li.append($tools);
+                            $('.invalid-stories-edit').append($li);
+                            $edit.on('click', function () {
+                                var $span = $(this).parent().siblings('span');
+                                var $input = $(this).parent().siblings('input');
+
+                                if ($(this).data('action') == 'read') {
+                                    $(this).data('action', 'write');
+                                    $input.val($span.text());
+
+                                    $input.removeClass('hidden');
+                                    $span.addClass('hidden');
+                                } else {
+                                    $(this).data('action', 'read');
+                                    $span.removeClass('hidden');
+                                    $input.addClass('hidden');
+                                }
+                            });
+                            $save.on('click', function () {
+                                var $spinner = $(this).parent().siblings('.spinner');
+                                var $span = $(this).parent().siblings('span');
+                                var $input = $(this).parent().siblings('input');
+                                var $check = $(this).parent().siblings('.green');
+                                var $uncheck = $(this).parent().siblings('.red');
+
+                                $spinner.removeClass('hidden');
+
+                                $.ajax({
+                                    url: $(this).data('url'),
+                                    method: "post",
+                                    data: { title: $input.val() },
+                                    success: function (response) {
+                                        $spinner.addClass('hidden');
+                                        $span.text($input.val());
+                                        $span.removeClass('hidden');
+                                        $input.addClass('hidden');
+
+                                        if (response.valid) {
+                                            $check.removeClass('hidden');
+                                            $uncheck.addClass('hidden');
+                                        } else {
+                                            $check.addClass('hidden');
+                                            $uncheck.removeClass('hidden');
+                                        }
+                                    },
+                                    error: function () {
+                                        $spinner.addClass('hidden');
+
+                                        alert('An error occured');
+                                    }
+                                });
+                            });
+                        }
+
+                        $('#validation-step-two').removeClass('hidden');
+
+                        // if (isFinished) {
+                        //     $('#validation-step-three').removeClass('hidden');
+                        // } else {
+                        //     $('#validation-step-two').removeClass('hidden');
+                        // }
+
                     },
                     error: function (response) {
                         $('#validation-step-one').addClass('hidden');
