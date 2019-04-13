@@ -47,14 +47,14 @@ abstract class AbstractUseCaseGenerator implements UseCaseGeneratorInterface
     /**
      * @param UserStory $story
      *
-     * @return array
+     * @return bool
      */
-    abstract protected function getUseCase(UserStory $story): array;
+    abstract public function isStoryValid(UserStory $story): bool;
 
     /**
      * @param UserStory $story
      *
-     * @return bool
+     * @return array
      */
-    abstract protected function isStoryValid(UserStory $story): bool;
+    abstract protected function getUseCase(UserStory $story): array;
 }

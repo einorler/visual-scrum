@@ -6,6 +6,7 @@ use AppBundle\Entity\Configuration;
 use AppBundle\Entity\Project;
 use AppBundle\Entity\User;
 use AppBundle\Entity\UserStory;
+use AppBundle\Generator\DictionaryGenerator;
 use AppBundle\Plugin\PluginInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\UserBundle\Model\UserInterface;
@@ -31,15 +32,26 @@ class TrelloPlugin implements PluginInterface
     private $router;
 
     /**
+     * @var DictionaryGenerator
+     */
+    private $dictionaryGenerator;
+
+    /**
      * @param EntityManagerInterface $em
      * @param Environment            $twig
      * @param RouterInterface        $router
+     * @param DictionaryGenerator        $dictionaryGenerator
      */
-    public function __construct(EntityManagerInterface $em, Environment $twig, RouterInterface $router)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        Environment $twig,
+        RouterInterface $router,
+        DictionaryGenerator $dictionaryGenerator
+    ) {
         $this->em = $em;
         $this->twig = $twig;
         $this->router = $router;
+        $this->dictionaryGenerator = $dictionaryGenerator;
     }
 
     /**
@@ -82,6 +94,13 @@ class TrelloPlugin implements PluginInterface
                 $project->addUserStory($story);
             }
 
+            $this->em->persist($project);
+        }
+
+        $this->em->flush();
+
+        foreach ($user->getProjects() as $project) {
+            $this->dictionaryGenerator->generateDictionary($project);
             $this->em->persist($project);
         }
 

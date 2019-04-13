@@ -37,7 +37,7 @@ class LithuanianGenerator extends AbstractUseCaseGenerator
      *
      * @return bool
      */
-    protected function isStoryValid(UserStory $story): bool
+    public function isStoryValid(UserStory $story): bool
     {
         if (null === $story->isValid()) {
             $this->validateStory($story);

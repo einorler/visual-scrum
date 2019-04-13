@@ -4,6 +4,8 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\Configuration;
 use AppBundle\Entity\Project;
+use AppBundle\Entity\UserStory;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -117,5 +119,45 @@ class DefaultController extends Controller
         return new JsonResponse(
             ['form' => $this->get('app.manager.plugin')->getConfigurationSubForm($request->get('plugin'))]
         );
+    }
+
+    /**
+     * @Route("/validate/{id}", name="validate_project")
+     * @Method("POST")
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return Response
+     */
+    public function validationAction(Request $request, $id)
+    {
+        return new JsonResponse('super duper test');
+        $response = [];
+        $project = $this->getDoctrine()->getRepository(Project::class)->find($id);
+        /** @var Configuration $configuration */
+        $configuration = $this->getUser()->getConfiguration();
+        $generator = $this->get('app.generator.use_case')->getGenerator($configuration->getLanguage());
+
+        if (!$project) {
+            return new JsonResponse('Project not found', Response::HTTP_NOT_FOUND);
+        } elseif (!$generator) {
+            return new JsonResponse('No generator found for validation', Response::HTTP_NOT_FOUND);
+        }
+
+        $this->get('app.generator.dictionary')->generateDictionary($project);
+
+        /** @var UserStory $story */
+        foreach ($project->getUserStories() as $story) {
+            $response[$story->getId()] = [
+                'title' => $story->getTitle(),
+                'valid' => $generator->isStoryValid($story),
+                'dictionary' => $project->getDictionaryForStory($story),
+            ];
+        }
+
+        $this->getDoctrine()->getEntityManager()->flush();
+
+        return new JsonResponse($response);
     }
 }

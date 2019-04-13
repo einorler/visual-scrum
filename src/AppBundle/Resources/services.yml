@@ -18,5 +18,13 @@ services:
         arguments:
           - '@doctrine.orm.entity_manager'
 
+    app.generator.dictionary:
+        class: AppBundle\Generator\DictionaryGenerator
+        arguments:
+          - '@app.client.parts_of_speech'
+
     app.client.yuml:
         class: AppBundle\Client\yUmlClient
+
+    app.client.parts_of_speech:
+        class: AppBundle\Client\PartsOfSpeechClient

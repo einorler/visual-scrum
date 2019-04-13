@@ -59,6 +59,15 @@ class Project
      */
     private $activityDiagrams;
 
+    /**
+     * A collection of all the nouns in the project
+     *
+     * @var array
+     *
+     * @ORM\Column(type="json_array")
+     */
+    private $dictionary = [];
+
     public function __construct()
     {
         $this->userStories = new ArrayCollection();
@@ -123,7 +132,7 @@ class Project
     }
 
     /**
-     * @return Project[]|ArrayCollection
+     * @return UserStory[]|ArrayCollection
      */
     public function getUserStories()
     {
@@ -217,5 +226,58 @@ class Project
         }
 
         return null;
+    }
+
+    /**
+     * Returns [ noun_1 => [ story_id_1, story_id_2, ... ], noun_2 => [ ... ], ... ]
+     *
+     * @return array
+     */
+    public function getDictionary(): array
+    {
+        return $this->dictionary;
+    }
+
+    /**
+     * Returns just [ noun_1, noun_2, ... ]
+     *
+     * @return array
+     */
+    public function getDictionaryNouns(): array
+    {
+        return array_keys($this->dictionary);
+    }
+
+    /**
+     * Returns nouns for a specific story
+     *
+     * @param UserStory $story
+     *
+     * @return array
+     */
+    public function getDictionaryForStory(UserStory $story): array
+    {
+        $nouns = [];
+
+        foreach ($this->dictionary as $noun => $storyIds) {
+            if (in_array($story->getId(), $storyIds)) {
+                $nouns[] = $noun;
+            }
+        }
+
+        return $nouns;
+    }
+
+    /**
+     * @param array $dictionary
+     */
+    public function setDictionary(array $dictionary)
+    {
+        $this->dictionary = $dictionary;
+    }
+
+    public function addToDictionary(int $stroyId, string $noun): void
+    {
+        $this->dictionary[$noun][] = $stroyId;
     }
 }
