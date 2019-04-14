@@ -99,13 +99,6 @@ class TrelloPlugin implements PluginInterface
         }
 
         $this->em->flush();
-
-        foreach ($user->getProjects() as $project) {
-            $this->dictionaryGenerator->generateDictionary($project);
-            $this->em->persist($project);
-        }
-
-        $this->em->flush();
     }
 
     /**
