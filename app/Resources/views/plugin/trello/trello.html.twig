@@ -82,7 +82,7 @@
                 Trello.get('/lists/' + board.list + '/cards', [], function (cards) {
                     callsProcessed++;
 
-                    finalizeBoardProcessing(board, cards)
+                    finalizeBoardProcessing(board, cards);
 
                     sendData()
                 }, error);
@@ -107,18 +107,14 @@
                 return;
             }
 
-            $.ajax(
-                Routing.generate('trello_ajax') + '?XDEBUG_SESSION_START=PHPSTORM',
-                {
-                    method: 'POST',
-                    data: {boards: processedBoardList},
-                    contentType: 'application/json',
-                    success: function (data) {
-                        $('#trelloSynchStatus').text('Success!');
-                    },
-                    error: error
-                }
-            );
+            $.post(
+                    Routing.generate('trello_ajax') + '?XDEBUG_SESSION_START=PHPSTORM',
+                    {boards: processedBoardList}
+                )
+                .success( function (data) {
+                    $('#trelloSynchStatus').text('Success!');
+                })
+                .error(error);
 
             // Remove authentication token after all is said and done
             Trello.deauthorize();

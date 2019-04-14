@@ -26,7 +26,7 @@ class TrelloController extends Controller
      */
     public function ajaxAction(Request $request)
     {
-        $this->get('trello.plugin')->saveProjectData($this->getUser(), $request->get('boards'));
+        $this->get('trello.plugin')->saveProjectData($this->getUser(), $request->request->get('boards'));
 
         return new JsonResponse('Success!');
     }
