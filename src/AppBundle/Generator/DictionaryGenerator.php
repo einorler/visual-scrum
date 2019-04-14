@@ -62,6 +62,35 @@ class DictionaryGenerator
         return $similarNouns;
     }
 
+    /**
+     * @param Project $project
+     * @param string $nounToKeep
+     * @param string $replaceable
+     *
+     * @throws \Exception
+     */
+    public function mergeNouns(Project $project, string $nounToKeep, string $replaceable): void
+    {
+        $dictionary = $project->getDictionary();
+
+        if (!isset($dictionary[$nounToKeep]) || !isset($dictionary[$replaceable])) {
+            throw new \Exception('Nouns need to exist in project');
+        }
+
+        $nounToKeepStories = $dictionary[$nounToKeep];
+        $replaceableStories = $dictionary[$replaceable];
+
+        foreach ($project->getUserStories() as $story) {
+            if (in_array($story->getId(), $replaceableStories)) {
+                $story->setTitle(str_replace($replaceable, $nounToKeep, $story->getTitle()));
+            }
+        }
+
+        $dictionary[$nounToKeep] = array_unique(array_merge($nounToKeepStories, $replaceableStories));
+        unset($dictionary[$replaceable]);
+        $project->setDictionary($dictionary);
+    }
+
     public function getNounsForStory(UserStory $story)
     {
         return $this->client->getNounsFromText($story->getTitle());

@@ -32,7 +32,7 @@
                             {% for story in project.userStories %}
                                 <tr>
                                     <td>{{ no }}</td>{% set no = no + 1 %}
-                                    <td>{{ story.title }}</td>
+                                    <td>{{ story.title }}{% if story.changed %}<small class="label label-primary" style="margin-left: 2px"><i class="fa fa-pencil"></i></small>{% endif %}</td>
                                     <td>
                                         {% if story.valid is defined and story.valid is not null %}
                                             {% if story.valid %}
@@ -63,7 +63,7 @@
                         <i class="fa fa-check-circle-o"></i> Validate project
                     </a>
                     <a class="btn btn-app" href="#" data-toggle="modal" data-target="#modal-in-progress">
-                        <span class="badge bg-red">changed</span>
+                        <span class="badge bg-red {% if project.changed == false %}hidden{% endif %} badge-changed">changed</span>
                         <i class="fa fa-repeat"></i> Back sync
                     </a>
                     <a class="btn btn-app bg-blue" href="{{ path('use-case-generation', {id: project.id}) }}">
@@ -180,18 +180,24 @@
                         </div>
                         <div class="validation-step hidden" id="validation-step-two">
                             <div class="invalid-stories">
-                                <h4>Some stories were invald. Would you like to edit them?</h4>
+                                <h4>Stories</h4>
 
                                 <ul class="todo-list ui-sortable invalid-stories-edit">
                                 </ul>
+
+                                <button type="button" class="btn btn-success pull-center next" style="margin-top: 20px;">Next ></button>
                             </div>
 
-                            <div class="similar-nouns">
-                                <h4>We found similarities, which ones of these should we keep:</h4>
-
-                            </div>
                         </div>
                         <div class="validation-step hidden" id="validation-step-three">
+                            <h4>We found similarities, which ones of these should we keep:</h4>
+                            <div class="similar-nouns-container" data-project-id="{{ project.id }}">
+
+                            </div>
+
+                            <button type="button" class="btn btn-success pull-center next" style="margin-top: 20px;">Next ></button>
+                        </div>
+                        <div class="validation-step hidden" id="validation-step-four">
                             <div class="alert alert-success alert-dismissible">
                                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                                 <h4><i class="icon fa fa-check"></i> Success!</h4>
@@ -229,10 +235,28 @@
                 $('.download-diagram-xmi').attr('href', '/diagrams/' + $(this).data('xmi'));
             });
 
+            // These two are just for the navigation buttons inside of the validation modal
+            $('#validation-step-two .next').on('click', function () {
+                $('#validation-step-two').addClass('hidden');
+                $('#validation-step-three').removeClass('hidden');
+            });
+
+            $('#validation-step-three .next').on('click', function () {
+                $('#validation-step-three').addClass('hidden');
+                $('#validation-step-four').removeClass('hidden');
+            });
+
+            // ---------------------------------------------------------------------------------
+            // ----------------- This handles all of the validation insde it -------------------
+            // ---------------------------------------------------------------------------------
             $('#validate-project-button').on('click', function () {
                 $('.validation-step').addClass('hidden');
                 $('#validation-step-one').removeClass('hidden');
+                $('.invalid-stories-edit').empty();
+                $('.similar-nouns-container').empty();
+                $('.similar-nouns').addClass('hidden');
 
+                // Ajax call for the actual validation
                 $.ajax({
                     url: $(this).data('url'),
                     method: "post",
@@ -242,6 +266,7 @@
 
                         var length = response.stories.length;
 
+                        // parsing of the stories editing block
                         for (var i = 0; i < length; i++) {
                             var story = response.stories[i];
                             var $edit = $('<i class="fa fa-edit edit" data-action="read"></i>');
@@ -250,7 +275,6 @@
                             var uncheck = '';
 
                             if (story.valid) {uncheck = 'hidden'} else {check = 'hidden'; isFinished = false;}
-
 
                             var $li = $(
                                 '<li style="text-align: left">\n' +
@@ -266,6 +290,8 @@
                             $tools.append($save);
                             $li.append($tools);
                             $('.invalid-stories-edit').append($li);
+
+                            // This is responsible for editing of the story
                             $edit.on('click', function () {
                                 var $span = $(this).parent().siblings('span');
                                 var $input = $(this).parent().siblings('input');
@@ -282,6 +308,8 @@
                                     $input.addClass('hidden');
                                 }
                             });
+
+                            // This is responsible for saving of the story
                             $save.on('click', function () {
                                 var $spinner = $(this).parent().siblings('.spinner');
                                 var $span = $(this).parent().siblings('span');
@@ -296,6 +324,7 @@
                                     method: "post",
                                     data: { title: $input.val() },
                                     success: function (response) {
+                                        $('.badge-changed').removeClass('hidden');
                                         $spinner.addClass('hidden');
                                         $span.text($input.val());
                                         $span.removeClass('hidden');
@@ -318,14 +347,52 @@
                             });
                         }
 
+                        // ---------------------------------------------------------------------------------
+                        // --------------------------- Finish with the stories -----------------------------
+                        // ---------------------------------------------------------------------------------
+                        // ----------------------------- Begin with the nouns  -----------------------------
+                        // ---------------------------------------------------------------------------------
+
+                        var header = '';
+
+                        if (response.similar_nouns.length > 0) {
+                            header = 'There were similar nouns found in a generated dictionary:';
+                        } else {
+                            header = 'There were no similar nouns found in a generated dictionary.';
+                        }
+
+                        $('#validation-step-three h4').text(header);
                         $('#validation-step-two').removeClass('hidden');
 
-                        // if (isFinished) {
-                        //     $('#validation-step-three').removeClass('hidden');
-                        // } else {
-                        //     $('#validation-step-two').removeClass('hidden');
-                        // }
+                        length = response.similar_nouns.length;
+                        var $container = $('.similar-nouns-container');
 
+                        for (i = 0; i < length; i++) {
+                            isFinished = false;
+                            var pair = response.similar_nouns[i];
+
+                            var $subcontainer = $('<div class="noun-pair"></div>');
+                            var $nounA = $('<button type="button" class="btn btn-default pull-center" style="margin: 5px">' + pair[0] + '</button>');
+                            var $nounB = $('<button type="button" class="btn btn-default pull-center" style="margin: 5px">' + pair[1] + '</button>');
+                            var $both = $('<button type="button" class="btn btn-warning pull-center" style="margin: 5px">Keep both</button>');
+                            $subcontainer.append($nounA);
+                            $subcontainer.append($nounB);
+                            $subcontainer.append($both);
+                            $container.append($subcontainer);
+                            bindMergeAction($container.data('project-id'), $nounA.text(), $nounB.text(), $nounA);
+                            bindMergeAction($container.data('project-id'), $nounA.text(), $nounB.text(), $nounB);
+                            $both.on('click', function () {
+                                $(this).parent().addClass('hidden');
+                            });
+                        }
+
+                        if (isFinished) {
+                            $('.validation-step').addClass('hidden');
+                            $('#validation-step-four').removeClass('hidden');
+                        } else {
+                            $('.validation-step').addClass('hidden');
+                            $('#validation-step-two').removeClass('hidden');
+                        }
                     },
                     error: function (response) {
                         $('#validation-step-one').addClass('hidden');
@@ -334,5 +401,23 @@
                 });
             })
         });
+
+        // ---------------------------------------------------------------------------------
+        // -------------------------- End of the validation block --------------------------
+        // ---------------------------------------------------------------------------------
+
+        function bindMergeAction(projectId, nounA, nounB, $element) {
+            $element.on('click', function() {
+                $.ajax({
+                    url: '/project/' + projectId + '/merge_nouns',
+                    method: 'post',
+                    data: {nouns: [nounA, nounB], keep: $element.text()},
+                    success: function (response) {
+                        $element.parent().addClass('hidden');
+                        $('.badge-changed').removeClass('hidden');
+                    }
+                });
+            });
+        }
     </script>
 {% endblock %}

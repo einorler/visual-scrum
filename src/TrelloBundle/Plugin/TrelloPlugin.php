@@ -91,6 +91,7 @@ class TrelloPlugin implements PluginInterface
                 if ($story->getId()) continue;
 
                 $story->setTitle($card);
+                $story->setChanged(false);
                 $project->addUserStory($story);
             }
 

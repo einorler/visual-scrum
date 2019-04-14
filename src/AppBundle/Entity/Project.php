@@ -161,6 +161,23 @@ class Project
     }
 
     /**
+     * If there is at least a single changed story
+     * we consider the project itself as changed
+     *
+     * @return bool
+     */
+    public function isChanged(): bool
+    {
+        foreach ($this->userStories as $story) {
+            if ($story->isChanged()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return UseCaseDiagram[]|ArrayCollection
      */
     public function getUseCaseDiagrams()
