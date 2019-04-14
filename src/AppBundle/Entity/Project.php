@@ -286,6 +286,14 @@ class Project
     }
 
     /**
+     * @param string $noun
+     */
+    public function removeDictionaryNoun(string $noun): void
+    {
+        unset($this->dictionary[$noun]);
+    }
+
+    /**
      * @param array $dictionary
      */
     public function setDictionary(array $dictionary)

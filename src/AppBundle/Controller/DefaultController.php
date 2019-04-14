@@ -253,4 +253,33 @@ class DefaultController extends Controller
 
         return new JsonResponse(['some' => $nouns[0] == $request->request->get('keep') ? $nouns[1] : $nouns[0]]);
     }
+
+    /**
+     * @Route("/project/{id}/remove_noun", name="remove_noun")
+     * @Method("POST")
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return Response
+     *
+     * @throws \Exception
+     */
+    public function removeNounAction(Request $request, $id): Response
+    {
+        $project = $this->getDoctrine()->getRepository(Project::class)->find($id);
+        $noun = $request->request->get('noun');
+
+        if (!$project) {
+            return new JsonResponse('Project not found', Response::HTTP_NOT_FOUND);
+        } elseif (!$noun) {
+            return new JsonResponse('No valid noun provided', Response::HTTP_BAD_REQUEST);
+        }
+
+        $project->removeDictionaryNoun($noun);
+        $this->get('doctrine.orm.entity_manager')->persist($project);
+        $this->get('doctrine.orm.entity_manager')->flush();
+
+        return new JsonResponse('success');
+    }
 }
