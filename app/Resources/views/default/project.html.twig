@@ -32,7 +32,7 @@
                             {% for story in project.userStories %}
                                 <tr>
                                     <td>{{ no }}</td>{% set no = no + 1 %}
-                                    <td>{{ story.title }}</td>
+                                    <td>{{ story.title }}{% if story.changed %}<small class="label label-primary" style="margin-left: 2px"><i class="fa fa-pencil"></i></small>{% endif %}</td>
                                     <td>
                                         {% if story.valid is defined and story.valid is not null %}
                                             {% if story.valid %}
@@ -56,14 +56,21 @@
         <din class="col-md-6">
             <div class="box">
                 <div class="box-header">
-                    <h4 class="box-title">Generate a Diagram</h4>
+                    <h4 class="box-title">Actions</h4>
                 </div>
                 <div class="box-body">
-                    <a class="btn btn-app" href="{{ path('use-case-generation', {id: project.id}) }}">
-                        <i class="fa fa-commenting"></i> Use case
+                    <a class="btn btn-app" data-url="{{ path('validate_project', {id: project.id}) }}" id="validate-project-button" data-toggle="modal" data-target="#modal-validate">
+                        <i class="fa fa-check-circle-o"></i> Validate project
                     </a>
                     <a class="btn btn-app" href="#" data-toggle="modal" data-target="#modal-in-progress">
-                        <i class="fa fa-exchange"></i> Activity
+                        <span class="badge bg-red {% if project.changed == false %}hidden{% endif %} badge-changed">changed</span>
+                        <i class="fa fa-repeat"></i> Back sync
+                    </a>
+                    <a class="btn btn-app bg-blue" href="{{ path('use-case-generation', {id: project.id}) }}">
+                        <i class="fa fa-commenting"></i> Use case diagram
+                    </a>
+                    <a class="btn btn-app bg-blue" href="#" data-toggle="modal" data-target="#modal-in-progress">
+                        <i class="fa fa-exchange"></i> Activity diagram
                     </a>
                 </div>
             </div>
@@ -89,6 +96,18 @@
                     {% for diagram in project.useCaseDiagrams %}
                         <img class="diagram-image" src="{{ asset(diagram.file) }}" alt="{{ diagram.title }}" width="24%" data-toggle="modal" data-target="#modal-diagram" style="cursor: pointer;" data-xmi="{{ diagram.xmiFile }}">
                     {% endfor %}
+                </div>
+            </div>
+            <div class="box">
+                <div class="box-header">
+                    <h4 class="box-title">Dictionary</h4>
+                </div>
+                <div class="box-body">
+                    <ul>
+                        {% for noun, stories in project.dictionary  %}
+                            <li>{{ noun }}</li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </din>
@@ -130,10 +149,68 @@
                         <h4 class="modal-title">Activity Diagram</h4>
                     </div>
                     <div class="modal-body text-center">
-                        <p>This functionality is still under development.</p>
-                        <ul>
-                            <li class="drag">Test</li>
-                        </ul>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <div class="modal fade" id="modal-validate">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title">Activity Diagram</h4>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="step-first hidden">
+                            <p>Validating user stories...</p>
+
+                            <img src="{{ asset('img/Spinner.gif') }}" alt="">
+                        </div>
+                        <div class="validation-step hidden" id="validation-step-one">
+                            <p>Validating user stories...</p>
+
+                            <img src="{{ asset('img/Spinner.gif') }}" alt="">
+                        </div>
+                        <div class="validation-step hidden" id="validation-step-two">
+                            <div class="invalid-stories">
+                                <h4>Stories</h4>
+
+                                <ul class="todo-list ui-sortable invalid-stories-edit">
+                                </ul>
+
+                                <button type="button" class="btn btn-success pull-center next" style="margin-top: 20px;">Next ></button>
+                            </div>
+
+                        </div>
+                        <div class="validation-step hidden" id="validation-step-three">
+                            <h4>We found similarities, which ones of these should we keep:</h4>
+                            <div class="similar-nouns-container" data-project-id="{{ project.id }}">
+
+                            </div>
+
+                            <button type="button" class="btn btn-success pull-center next" style="margin-top: 20px;">Next ></button>
+                        </div>
+                        <div class="validation-step hidden" id="validation-step-four">
+                            <div class="alert alert-success alert-dismissible">
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                                <h4><i class="icon fa fa-check"></i> Success!</h4>
+                                Validation finished
+                            </div>
+                        </div>
+                        <div class="validation-step hidden" id="validation-step-failed">
+                            <div class="callout callout-danger">
+                                <h4>Error!</h4>
+
+                                <p>Validation failed.</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
@@ -158,10 +235,189 @@
                 $('.download-diagram-xmi').attr('href', '/diagrams/' + $(this).data('xmi'));
             });
 
-            const draggable = new Draggable(document.querySelectorAll('ul'), {
-                draggable: 'li.drag'
+            // These two are just for the navigation buttons inside of the validation modal
+            $('#validation-step-two .next').on('click', function () {
+                $('#validation-step-two').addClass('hidden');
+                $('#validation-step-three').removeClass('hidden');
             });
 
+            $('#validation-step-three .next').on('click', function () {
+                $('#validation-step-three').addClass('hidden');
+                $('#validation-step-four').removeClass('hidden');
+            });
+
+            // ---------------------------------------------------------------------------------
+            // ----------------- This handles all of the validation insde it -------------------
+            // ---------------------------------------------------------------------------------
+            $('#validate-project-button').on('click', function () {
+                $('.validation-step').addClass('hidden');
+                $('#validation-step-one').removeClass('hidden');
+                $('.invalid-stories-edit').empty();
+                $('.similar-nouns-container').empty();
+                $('.similar-nouns').addClass('hidden');
+
+                // Ajax call for the actual validation
+                $.ajax({
+                    url: $(this).data('url'),
+                    method: "post",
+                    success: function (response) {
+                        $('#validation-step-one').addClass('hidden');
+                        var isFinished = true;
+
+                        var length = response.stories.length;
+
+                        // parsing of the stories editing block
+                        for (var i = 0; i < length; i++) {
+                            var story = response.stories[i];
+                            var $edit = $('<i class="fa fa-edit edit" data-action="read"></i>');
+                            var $save = $('<i class="fa fa-save save" data-url="/user_story/' + story.id + '"></i>');
+                            var check = '';
+                            var uncheck = '';
+
+                            if (story.valid) {uncheck = 'hidden'} else {check = 'hidden'; isFinished = false;}
+
+                            var $li = $(
+                                '<li style="text-align: left">\n' +
+                                '<i class="fa fa-fw fa-check green icon-success ' + check + ' " style="color: #00a65a"></i>\n' +
+                                '<i class="fa fa-fw fa-close red icon-danger ' + uncheck + '" style="color: #dd4b39"></i>\n' +
+                                '<span class="text" >' + story.title + '</span>\n' +
+                                '<input type="text" class="story-edit hidden form-control" value="' + story.title + '" style="width: 70%; display: inline">' +
+                                '<img src="{{ asset('img/Spinner.gif') }}" style="height: 20px" class="spinner hidden">' +
+                                '</li>'
+                            );
+                            var $tools = $('<div class="tools"></div>');
+                            $tools.append($edit);
+                            $tools.append($save);
+                            $li.append($tools);
+                            $('.invalid-stories-edit').append($li);
+
+                            // This is responsible for editing of the story
+                            $edit.on('click', function () {
+                                var $span = $(this).parent().siblings('span');
+                                var $input = $(this).parent().siblings('input');
+
+                                if ($(this).data('action') == 'read') {
+                                    $(this).data('action', 'write');
+                                    $input.val($span.text());
+
+                                    $input.removeClass('hidden');
+                                    $span.addClass('hidden');
+                                } else {
+                                    $(this).data('action', 'read');
+                                    $span.removeClass('hidden');
+                                    $input.addClass('hidden');
+                                }
+                            });
+
+                            // This is responsible for saving of the story
+                            $save.on('click', function () {
+                                var $spinner = $(this).parent().siblings('.spinner');
+                                var $span = $(this).parent().siblings('span');
+                                var $input = $(this).parent().siblings('input');
+                                var $check = $(this).parent().siblings('.green');
+                                var $uncheck = $(this).parent().siblings('.red');
+
+                                $spinner.removeClass('hidden');
+
+                                $.ajax({
+                                    url: $(this).data('url'),
+                                    method: "post",
+                                    data: { title: $input.val() },
+                                    success: function (response) {
+                                        $('.badge-changed').removeClass('hidden');
+                                        $spinner.addClass('hidden');
+                                        $span.text($input.val());
+                                        $span.removeClass('hidden');
+                                        $input.addClass('hidden');
+
+                                        if (response.valid) {
+                                            $check.removeClass('hidden');
+                                            $uncheck.addClass('hidden');
+                                        } else {
+                                            $check.addClass('hidden');
+                                            $uncheck.removeClass('hidden');
+                                        }
+                                    },
+                                    error: function () {
+                                        $spinner.addClass('hidden');
+
+                                        alert('An error occured');
+                                    }
+                                });
+                            });
+                        }
+
+                        // ---------------------------------------------------------------------------------
+                        // --------------------------- Finish with the stories -----------------------------
+                        // ---------------------------------------------------------------------------------
+                        // ----------------------------- Begin with the nouns  -----------------------------
+                        // ---------------------------------------------------------------------------------
+
+                        var header = '';
+
+                        if (response.similar_nouns.length > 0) {
+                            header = 'There were similar nouns found in a generated dictionary:';
+                        } else {
+                            header = 'There were no similar nouns found in a generated dictionary.';
+                        }
+
+                        $('#validation-step-three h4').text(header);
+                        $('#validation-step-two').removeClass('hidden');
+
+                        length = response.similar_nouns.length;
+                        var $container = $('.similar-nouns-container');
+
+                        for (i = 0; i < length; i++) {
+                            isFinished = false;
+                            var pair = response.similar_nouns[i];
+
+                            var $subcontainer = $('<div class="noun-pair"></div>');
+                            var $nounA = $('<button type="button" class="btn btn-default pull-center" style="margin: 5px">' + pair[0] + '</button>');
+                            var $nounB = $('<button type="button" class="btn btn-default pull-center" style="margin: 5px">' + pair[1] + '</button>');
+                            var $both = $('<button type="button" class="btn btn-warning pull-center" style="margin: 5px">Keep both</button>');
+                            $subcontainer.append($nounA);
+                            $subcontainer.append($nounB);
+                            $subcontainer.append($both);
+                            $container.append($subcontainer);
+                            bindMergeAction($container.data('project-id'), $nounA.text(), $nounB.text(), $nounA);
+                            bindMergeAction($container.data('project-id'), $nounA.text(), $nounB.text(), $nounB);
+                            $both.on('click', function () {
+                                $(this).parent().addClass('hidden');
+                            });
+                        }
+
+                        if (isFinished) {
+                            $('.validation-step').addClass('hidden');
+                            $('#validation-step-four').removeClass('hidden');
+                        } else {
+                            $('.validation-step').addClass('hidden');
+                            $('#validation-step-two').removeClass('hidden');
+                        }
+                    },
+                    error: function (response) {
+                        $('#validation-step-one').addClass('hidden');
+                        $('#validation-step-failed').removeClass('hidden');
+                    }
+                });
+            })
         });
+
+        // ---------------------------------------------------------------------------------
+        // -------------------------- End of the validation block --------------------------
+        // ---------------------------------------------------------------------------------
+
+        function bindMergeAction(projectId, nounA, nounB, $element) {
+            $element.on('click', function() {
+                $.ajax({
+                    url: '/project/' + projectId + '/merge_nouns',
+                    method: 'post',
+                    data: {nouns: [nounA, nounB], keep: $element.text()},
+                    success: function (response) {
+                        $element.parent().addClass('hidden');
+                        $('.badge-changed').removeClass('hidden');
+                    }
+                });
+            });
+        }
     </script>
 {% endblock %}

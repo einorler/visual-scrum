@@ -42,6 +42,13 @@ class UserStory
     private $valid;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean")
+     */
+    private $changed = false;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -95,5 +102,21 @@ class UserStory
     public function setValid($valid)
     {
         $this->valid = $valid;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isChanged(): bool
+    {
+        return $this->changed;
+    }
+
+    /**
+     * @param bool $changed
+     */
+    public function setChanged(bool $changed): void
+    {
+        $this->changed = $changed;
     }
 }

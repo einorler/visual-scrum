@@ -36,7 +36,7 @@ class EnglishGenerator extends AbstractUseCaseGenerator
      *
      * @return bool
      */
-    protected function isStoryValid(UserStory $story): bool
+    public function isStoryValid(UserStory $story): bool
     {
         if (null === $story->isValid()) {
             $this->validateStory($story);
@@ -48,7 +48,7 @@ class EnglishGenerator extends AbstractUseCaseGenerator
     /**
      * @param UserStory $story
      */
-    protected function validateStory(UserStory $story): void
+    public function validateStory(UserStory $story): void
     {
         if (!preg_match('/^As .* I must be able to .*$/', $story->getTitle())) {
             $story->setValid(false);

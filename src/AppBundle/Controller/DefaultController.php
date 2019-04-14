@@ -4,6 +4,8 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\Configuration;
 use AppBundle\Entity\Project;
+use AppBundle\Entity\UserStory;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -117,5 +119,138 @@ class DefaultController extends Controller
         return new JsonResponse(
             ['form' => $this->get('app.manager.plugin')->getConfigurationSubForm($request->get('plugin'))]
         );
+    }
+
+    /**
+     * @Route("/validate/{id}", name="validate_project")
+     * @Method("POST")
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return Response
+     *
+     * @throws \Exception
+     */
+    public function validationAction(Request $request, $id)
+    {
+        $response = [];
+        $project = $this->getDoctrine()->getRepository(Project::class)->find($id);
+        /** @var Configuration $configuration */
+        $configuration = $this->getUser()->getConfiguration();
+        $generator = $this->get('app.generator.use_case')->getGenerator($configuration->getLanguage());
+
+        if (!$project) {
+            return new JsonResponse('Project not found', Response::HTTP_NOT_FOUND);
+        } elseif (!$generator) {
+            return new JsonResponse('No generator found for validation', Response::HTTP_NOT_FOUND);
+        }
+
+        $this->get('app.generator.dictionary')->generateDictionary($project);
+        $response['similar_nouns'] = $this->get('app.generator.dictionary')->getSimilarNouns($project);
+
+        /** @var UserStory $story */
+        foreach ($project->getUserStories() as $story) {
+            $storyDictionary = $project->getDictionaryForStory($story);
+            $generator->validateStory($story);
+
+            $response['stories'][] = [
+                'id' => $story->getId(),
+                'title' => $story->getTitle(),
+                'valid' => $generator->isStoryValid($story),
+                'dictionary' => $storyDictionary,
+            ];
+
+            $this->get('doctrine.orm.entity_manager')->persist($story);
+        }
+
+        $this->get('doctrine.orm.entity_manager')->flush();
+
+        return new JsonResponse($response);
+    }
+
+    /**
+     * @Route("/user_story/{id}", name="user_story_update")
+     * @Method("POST")
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return Response
+     *
+     * @throws \Exception
+     */
+    public function updateStoryAction(Request $request, $id)
+    {
+        $userStory = $this->getDoctrine()->getRepository(UserStory::class)->find($id);
+        /** @var Configuration $configuration */
+        $configuration = $this->getUser()->getConfiguration();
+        $generator = $this->get('app.generator.use_case')->getGenerator($configuration->getLanguage());
+
+        if (!$userStory) {
+            return new JsonResponse('Story not found', Response::HTTP_NOT_FOUND);
+        } elseif (!$generator) {
+            return new JsonResponse('No generator found for validation', Response::HTTP_NOT_FOUND);
+        }
+
+        $title = $request->request->get('title');
+
+        if ($title && $userStory->getTitle() != $title) {
+            $userStory->setTitle($title);
+            $userStory->setChanged(true);
+            $generator->validateStory($userStory);
+        }
+
+        $this->get('doctrine.orm.entity_manager')->persist($userStory);
+        $this->get('doctrine.orm.entity_manager')->flush();
+
+        return new JsonResponse(['valid' => $userStory->isValid()]);
+    }
+
+    /**
+     * @Route("/project/{id}/merge_nouns", name="merge_nouns")
+     * @Method("POST")
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return Response
+     *
+     * @throws \Exception
+     */
+    public function mergeNounsAction(Request $request, $id)
+    {
+        $project = $this->getDoctrine()->getRepository(Project::class)->find($id);
+        $nouns = $request->get('nouns');
+
+        if (!is_array($nouns) || count($nouns) < 2) {
+            return new JsonResponse([], Response::HTTP_BAD_REQUEST);
+        }
+
+        /** @var Configuration $configuration */
+        $configuration = $this->getUser()->getConfiguration();
+        $generator = $this->get('app.generator.use_case')->getGenerator($configuration->getLanguage());
+
+        if (!$project) {
+            return new JsonResponse('Project not found', Response::HTTP_NOT_FOUND);
+        } elseif (!$generator) {
+            return new JsonResponse('No generator found for validation', Response::HTTP_NOT_FOUND);
+        }
+
+        $this->get('app.generator.dictionary')->mergeNouns(
+            $project,
+            $request->request->get('keep'),
+            $nouns[0] == $request->request->get('keep') ? $nouns[1] : $nouns[0]
+            );
+
+        /** @var UserStory $story */
+        foreach ($project->getUserStories() as $story) {
+            $this->get('doctrine.orm.entity_manager')->persist($story);
+        }
+
+        $this->get('doctrine.orm.entity_manager')->persist($project);
+        $this->get('doctrine.orm.entity_manager')->flush();
+
+        return new JsonResponse(['some' => $nouns[0] == $request->request->get('keep') ? $nouns[1] : $nouns[0]]);
     }
 }
