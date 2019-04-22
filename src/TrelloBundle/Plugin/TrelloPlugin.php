@@ -78,6 +78,7 @@ class TrelloPlugin implements PluginInterface
     {
         foreach ($data as $board) {
             $project = $user->getProjectByTitle($board['name']) ?? new Project();
+            $project->setDistId($board['id']);
             $project->setUser($user);
             $project->setTitle($board['name']);
 
@@ -86,11 +87,12 @@ class TrelloPlugin implements PluginInterface
             }
 
             foreach ($board['cards'] as $card) {
-                $story = $project->getUserStoryByTitle($card) ?? new UserStory();
+                $story = $project->getUserStoryByIdentifier($card['id']) ?? new UserStory();
 
                 if ($story->getId()) continue;
 
-                $story->setTitle($card);
+                $story->setTitle($card['name']);
+                $story->setDistId($card['id']);
                 $story->setChanged(false);
                 $project->addUserStory($story);
             }

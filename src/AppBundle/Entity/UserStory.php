@@ -22,6 +22,13 @@ class UserStory
     /**
      * @var string
      *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $distId;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(type="string")
      */
     private $title;
@@ -54,6 +61,22 @@ class UserStory
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDistId(): string
+    {
+        return $this->distId;
+    }
+
+    /**
+     * @param string $distId
+     */
+    public function setDistId(string $distId): void
+    {
+        $this->distId = $distId;
     }
 
     /**

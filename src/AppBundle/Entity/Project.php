@@ -19,6 +19,13 @@ class Project
     private $id;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $distId;
+
+    /**
      * @ORM\Column(type="string")
      */
     private $title;
@@ -81,6 +88,22 @@ class Project
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDistId()
+    {
+        return $this->distId;
+    }
+
+    /**
+     * @param string $distId
+     */
+    public function setDistId($distId)
+    {
+        $this->distId = $distId;
     }
 
     /**
@@ -238,6 +261,22 @@ class Project
     {
         foreach ($this->userStories as $story) {
             if ($story->getTitle() == $title) {
+                return $story;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $identifier
+     *
+     * @return UserStory
+     */
+    public function getUserStoryByIdentifier(string $identifier): ?UserStory
+    {
+        foreach ($this->userStories as $story) {
+            if ($story->getDistId() == $identifier) {
                 return $story;
             }
         }
