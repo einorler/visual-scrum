@@ -62,7 +62,7 @@
                     <a class="btn btn-app" data-url="{{ path('validate_project', {id: project.id}) }}" id="validate-project-button" data-toggle="modal" data-target="#modal-validate">
                         <i class="fa fa-check-circle-o"></i> Validate project
                     </a>
-                    <a class="btn btn-app" href="#" data-toggle="modal" data-target="#modal-in-progress">
+                    <a class="btn btn-app" href="#" data-toggle="modal" data-target="#backsync">
                         <span class="badge bg-red {% if project.changed == false %}hidden{% endif %} badge-changed">changed</span>
                         <i class="fa fa-repeat"></i> Back sync
                     </a>
@@ -153,6 +153,26 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <div class="modal fade" id="backsync">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title">Backwards synchronization</h4>
+                    </div>
+                    <div class="modal-body text-center">
+                        This action will override the data in you project management tool. Continue?
+                    </div>
+                    <div class="modal-footer">
+                        <a href="{{ path('backsync', {id: project.id}) }}" class="btn btn-primary pull-left">Yes</a>
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">No</button>
                     </div>
                 </div>
                 <!-- /.modal-content -->

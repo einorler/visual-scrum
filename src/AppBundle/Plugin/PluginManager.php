@@ -69,4 +69,21 @@ class PluginManager
 
         return $this->plugins[$configuration->getType()]->getSynchronizationUrl();
     }
+
+    /**
+     * @param Configuration $configuration
+     * @param array         $parameters
+     *
+     * @return string
+     */
+    public function getBacksyncUrl(Configuration $configuration, array $parameters = []): string
+    {
+        if (!isset($this->plugins[$configuration->getType()])) {
+            throw new InvalidConfigurationException(
+                'Invalid configuration. There are no integrations with ' . $configuration->getType()
+            );
+        }
+
+        return $this->plugins[$configuration->getType()]->getBacksyncUrl($parameters);
+    }
 }

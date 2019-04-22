@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\Configuration;
 use AppBundle\Entity\Project;
+use AppBundle\Entity\User;
 use AppBundle\Entity\UserStory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -104,6 +105,37 @@ class DefaultController extends Controller
             }
 
             return new RedirectResponse($this->get('app.manager.plugin')->getSynchronizationUrl($configuration));
+        } catch (\Exception $e) {
+            $this->addFlash('error', $e->getMessage());
+
+            return new RedirectResponse($this->get('router')->generate('homepage'));
+        }
+    }
+
+    /**
+     * This action is dedicated to redirecting to a plugin action that is responsible
+     * for saving the information back to the project management tool
+     *
+     * @Route("/backsync/{id}", name="backsync")
+     *
+     * @param Request $request
+     * @param $id Project id
+     *
+     * @return Response
+     */
+    public function backsyncAction(Request $request, $id): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $configuration = $user->getConfiguration();
+
+        try {
+            if (!$configuration) {
+                throw new \Exception('You must provide configuration if you want to synchronize data.');
+            }
+
+            return new RedirectResponse($this->get('app.manager.plugin')
+                ->getBacksyncUrl($configuration, ['id' => $id]));
         } catch (\Exception $e) {
             $this->addFlash('error', $e->getMessage());
 

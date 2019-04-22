@@ -1,0 +1,48 @@
+{% extends '::base.html.twig' %}
+
+{% block content_header %}{% endblock %}
+
+{% block content %}
+    <div class="register-box">
+        <div class="register-logo" style="font-size: 80px; padding-top: 80px"><i class="fa fa-refresh"></i></div>
+        <div id="trelloSynchStatus" class="register-logo">SYNCHRONIZING...</div>
+    </div>
+{% endblock %}
+
+{% block jQuery %}<script   src="https://code.jquery.com/jquery-1.7.1.min.js"   integrity="sha256-iBcUE/x23aI6syuqF7EeT/+JFBxjPs5zeFJEXxumwb0="   crossorigin="anonymous"></script>{% endblock %}
+
+{% block javascripts %}
+    {#Trello API#}
+    <script src="https://trello.com/1/client.js?key={{ app_key }}"></script>
+    <script>
+        $(window).load(function(){
+            // Firstly, remove any authentication token if already set
+            Trello.deauthorize();
+
+            Trello.authorize({
+                name: "Not VS",
+                expiration: "1hour",
+                scope: {
+                    read: 'true',
+                    write: 'true'
+                },
+                success: function () {
+                    var cards = {{ cards|raw }};
+
+                    for (var i = 0; i < cards.length; i++) {
+                        Trello.put('/cards/' + cards[i].id, {name: cards[i].name}, success_function, error);
+                    }
+                },
+                error: error
+            });
+        });
+
+        var success_function = function () {
+            $('#trelloSynchStatus').text('Success!');
+        };
+
+        var error = function () {
+            $('#trelloSynchStatus').text('Error!');
+        };
+    </script>
+{% endblock %}

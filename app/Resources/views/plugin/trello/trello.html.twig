@@ -42,7 +42,7 @@
 
         // simply calls the API and passes the metadata of boards to `getLists` method
         function getBoards() {
-            Trello.get('/members/me/boards/', [], getLists, error)
+            Trello.get('/members/me/boards/', [], getLists, error);
         }
 
         // Gets the boardList of each board and passes them for filtering

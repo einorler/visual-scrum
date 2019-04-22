@@ -107,12 +107,24 @@ class TrelloPlugin implements PluginInterface
      * @param Configuration $configuration
      *
      * @return string
+     *
+     * @throws \Exception
      */
     public function getConfigurationSubForm(Configuration $configuration = null)
     {
         return $this->twig->render(':plugin/trello:_configuration_subform.html.twig', [
             'configuration' => $configuration,
         ]);
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return string
+     */
+    public function getBacksyncUrl(array $parameters = []): string
+    {
+        return $this->router->generate('trello_backsync', $parameters);
     }
 
     /**
