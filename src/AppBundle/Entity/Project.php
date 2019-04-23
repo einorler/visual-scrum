@@ -19,6 +19,13 @@ class Project
     private $id;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $distId;
+
+    /**
      * @ORM\Column(type="string")
      */
     private $title;
@@ -81,6 +88,22 @@ class Project
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDistId()
+    {
+        return $this->distId;
+    }
+
+    /**
+     * @param string $distId
+     */
+    public function setDistId($distId)
+    {
+        $this->distId = $distId;
     }
 
     /**
@@ -246,6 +269,22 @@ class Project
     }
 
     /**
+     * @param string $identifier
+     *
+     * @return UserStory
+     */
+    public function getUserStoryByIdentifier(string $identifier): ?UserStory
+    {
+        foreach ($this->userStories as $story) {
+            if ($story->getDistId() == $identifier) {
+                return $story;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Returns [ noun_1 => [ story_id_1, story_id_2, ... ], noun_2 => [ ... ], ... ]
      *
      * @return array
@@ -283,6 +322,14 @@ class Project
         }
 
         return $nouns;
+    }
+
+    /**
+     * @param string $noun
+     */
+    public function removeDictionaryNoun(string $noun): void
+    {
+        unset($this->dictionary[$noun]);
     }
 
     /**

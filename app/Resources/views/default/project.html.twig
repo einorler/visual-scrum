@@ -62,7 +62,7 @@
                     <a class="btn btn-app" data-url="{{ path('validate_project', {id: project.id}) }}" id="validate-project-button" data-toggle="modal" data-target="#modal-validate">
                         <i class="fa fa-check-circle-o"></i> Validate project
                     </a>
-                    <a class="btn btn-app" href="#" data-toggle="modal" data-target="#modal-in-progress">
+                    <a class="btn btn-app" href="#" data-toggle="modal" data-target="#backsync">
                         <span class="badge bg-red {% if project.changed == false %}hidden{% endif %} badge-changed">changed</span>
                         <i class="fa fa-repeat"></i> Back sync
                     </a>
@@ -103,11 +103,11 @@
                     <h4 class="box-title">Dictionary</h4>
                 </div>
                 <div class="box-body">
-                    <ul>
+                    <p>
                         {% for noun, stories in project.dictionary  %}
-                            <li>{{ noun }}</li>
+                            <span class="label label-primary">{{ noun }} <i class="icon fa fa-close remove-noun" style="cursor: pointer" data-noun="{{ noun }}"></i></span>
                         {% endfor %}
-                    </ul>
+                    </p>
                 </div>
             </div>
         </din>
@@ -153,6 +153,26 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <div class="modal fade" id="backsync">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title">Backwards synchronization</h4>
+                    </div>
+                    <div class="modal-body text-center">
+                        This action will override the data in you project management tool. Continue?
+                    </div>
+                    <div class="modal-footer">
+                        <a href="{{ path('backsync', {id: project.id}) }}" class="btn btn-primary pull-left">Yes</a>
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">No</button>
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -233,6 +253,19 @@
                 $('.modal-diagram-image').attr('src', $(this).attr('src'));
                 $('.download-diagram-image').attr('href', $(this).attr('src'));
                 $('.download-diagram-xmi').attr('href', '/diagrams/' + $(this).data('xmi'));
+            });
+
+            // Remove a noun from dictionary
+            $('.remove-noun').on('click', function () {
+                var $this = $(this);
+                $.ajax({
+                    method: 'post',
+                    url: '/project/{{ project.id }}/remove_noun',
+                    data: {noun: $this.data('noun')},
+                    success: function () {
+                        $this.parent().addClass('hidden');
+                    }
+                });
             });
 
             // These two are just for the navigation buttons inside of the validation modal

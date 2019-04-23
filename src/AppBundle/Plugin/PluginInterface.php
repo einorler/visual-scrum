@@ -19,6 +19,13 @@ interface PluginInterface
     public function getSynchronizationUrl(): string;
 
     /**
+     * @param array $parameters
+     *
+     * @return string
+     */
+    public function getBacksyncUrl(array $parameters = []): string;
+
+    /**
      * @param User  $user
      * @param array $data
      */

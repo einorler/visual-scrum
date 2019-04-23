@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\Configuration;
 use AppBundle\Entity\Project;
+use AppBundle\Entity\User;
 use AppBundle\Entity\UserStory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -104,6 +105,37 @@ class DefaultController extends Controller
             }
 
             return new RedirectResponse($this->get('app.manager.plugin')->getSynchronizationUrl($configuration));
+        } catch (\Exception $e) {
+            $this->addFlash('error', $e->getMessage());
+
+            return new RedirectResponse($this->get('router')->generate('homepage'));
+        }
+    }
+
+    /**
+     * This action is dedicated to redirecting to a plugin action that is responsible
+     * for saving the information back to the project management tool
+     *
+     * @Route("/backsync/{id}", name="backsync")
+     *
+     * @param Request $request
+     * @param $id Project id
+     *
+     * @return Response
+     */
+    public function backsyncAction(Request $request, $id): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $configuration = $user->getConfiguration();
+
+        try {
+            if (!$configuration) {
+                throw new \Exception('You must provide configuration if you want to synchronize data.');
+            }
+
+            return new RedirectResponse($this->get('app.manager.plugin')
+                ->getBacksyncUrl($configuration, ['id' => $id]));
         } catch (\Exception $e) {
             $this->addFlash('error', $e->getMessage());
 
@@ -252,5 +284,34 @@ class DefaultController extends Controller
         $this->get('doctrine.orm.entity_manager')->flush();
 
         return new JsonResponse(['some' => $nouns[0] == $request->request->get('keep') ? $nouns[1] : $nouns[0]]);
+    }
+
+    /**
+     * @Route("/project/{id}/remove_noun", name="remove_noun")
+     * @Method("POST")
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return Response
+     *
+     * @throws \Exception
+     */
+    public function removeNounAction(Request $request, $id): Response
+    {
+        $project = $this->getDoctrine()->getRepository(Project::class)->find($id);
+        $noun = $request->request->get('noun');
+
+        if (!$project) {
+            return new JsonResponse('Project not found', Response::HTTP_NOT_FOUND);
+        } elseif (!$noun) {
+            return new JsonResponse('No valid noun provided', Response::HTTP_BAD_REQUEST);
+        }
+
+        $project->removeDictionaryNoun($noun);
+        $this->get('doctrine.orm.entity_manager')->persist($project);
+        $this->get('doctrine.orm.entity_manager')->flush();
+
+        return new JsonResponse('success');
     }
 }
