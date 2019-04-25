@@ -36,7 +36,7 @@
                                     <td><a href="{{ path('project', {id: project.id}) }}">{{ project.title }}</a></td>
                                     <td>{{ project.version }}</td>
                                     <td>{{ project.userStories | length }}</td>
-                                    <td>{{ project.useCaseDiagrams | length + project.activityDiagrams | length }}</td>
+                                    <td>{{ project.useCaseDiagrams | length + project.classDiagrams | length }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
