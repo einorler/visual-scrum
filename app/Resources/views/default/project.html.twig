@@ -69,8 +69,8 @@
                     <a class="btn btn-app bg-blue" href="{{ path('use-case-generation', {id: project.id}) }}">
                         <i class="fa fa-commenting"></i> Use case diagram
                     </a>
-                    <a class="btn btn-app bg-blue" href="#" data-toggle="modal" data-target="#modal-in-progress">
-                        <i class="fa fa-exchange"></i> Activity diagram
+                    <a class="btn btn-app bg-blue" href="{{ path('class-generation', {id: project.id}) }}">
+                        <i class="fa fa-exchange"></i> Class diagram
                     </a>
                 </div>
             </div>
@@ -95,6 +95,9 @@
                 <div class="box-body">
                     {% for diagram in project.useCaseDiagrams %}
                         <img class="diagram-image" src="{{ asset(diagram.file) }}" alt="{{ diagram.title }}" width="24%" data-toggle="modal" data-target="#modal-diagram" style="cursor: pointer;" data-xmi="{{ diagram.xmiFile }}">
+                    {% endfor %}
+                    {% for diagram in project.classDiagrams %}
+                        <img class="diagram-image" src="{{ asset(diagram.file) }}" alt="{{ diagram.title }}" width="48%" data-toggle="modal" data-target="#modal-diagram" style="cursor: pointer;" data-xmi="{{ diagram.xmiFile }}">
                     {% endfor %}
                 </div>
             </div>
@@ -140,25 +143,6 @@
             </div>
             <!-- /.modal-dialog -->
         </div>
-        <div class="modal fade" id="modal-in-progress">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span></button>
-                        <h4 class="modal-title">Activity Diagram</h4>
-                    </div>
-                    <div class="modal-body text-center">
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
         <div class="modal fade" id="backsync">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -185,7 +169,7 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">×</span></button>
-                        <h4 class="modal-title">Activity Diagram</h4>
+                        <h4 class="modal-title">User Story Validation</h4>
                     </div>
                     <div class="modal-body text-center">
                         <div class="step-first hidden">

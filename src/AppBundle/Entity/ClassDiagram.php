@@ -6,9 +6,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="activity_diagram")
+ * @ORM\Table(name="class_diagram")
  */
-class ActivityDiagram extends AbstractDiagram
+class ClassDiagram extends AbstractDiagram
 {
     /**
      * @ORM\Id
@@ -18,9 +18,9 @@ class ActivityDiagram extends AbstractDiagram
     private $id;
 
     /**
-     * @var User
+     * @var Project
      *
-     * @ORM\ManyToOne(targetEntity="Project", inversedBy="activityDiagrams")
+     * @ORM\ManyToOne(targetEntity="Project", inversedBy="classDiagrams")
      * @ORM\JoinColumn(name="project_id", referencedColumnName="id")
      */
     private $project;
@@ -34,7 +34,7 @@ class ActivityDiagram extends AbstractDiagram
     }
 
     /**
-     * @return User
+     * @return Project
      */
     public function getProject()
     {
@@ -42,7 +42,7 @@ class ActivityDiagram extends AbstractDiagram
     }
 
     /**
-     * @param User $project
+     * @param Project $project
      */
     public function setProject($project)
     {
