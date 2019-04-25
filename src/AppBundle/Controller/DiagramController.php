@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\ClassDiagram;
 use AppBundle\Entity\Project;
 use AppBundle\Entity\UseCaseDiagram;
 use AppBundle\Generator\XmlGenerator;
@@ -49,6 +50,49 @@ class DiagramController extends Controller
             $diagram->setFile($filename);
             $diagram->setTitle($project->getTitle());
             $diagram->setXmiFile($xmlFileName);
+
+            $em->persist($diagram);
+            $em->flush($diagram);
+            $this->addFlash('success', 'Diagram creation successful!');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'There was an error generating the diagram, please try again later');
+        }
+
+        return $this->redirectToRoute('project', ['id' => $id]);
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     * @return Response
+     *
+     * @Route("/generate/class/{id}", name="class-generation")
+     */
+    public function classAction(Request $request, $id)
+    {
+        $em = $this->get('doctrine.orm.entity_manager');
+        /** @var Project $project */
+        $project = $em->getRepository(Project::class)->find($id);
+        $dictionary = $project->getDictionaryNouns();
+
+        if (empty($dictionary)) {
+            $this->addFlash(
+                'error',
+                'You don\'t have any items in your dictionary. Please go through the process of validation first.'
+            );
+
+            return $this->redirectToRoute('project', ['id' => $id]);
+        }
+
+        try {
+            $filename = $this->get('app.client.yuml')->fetchClassDiagram($dictionary);
+
+            $diagram = new ClassDiagram();
+            $diagram->setProject($project);
+            $diagram->setFile($filename);
+            $diagram->setTitle($project->getTitle());
+            $diagram->setXmiFile('fake...');
 
             $em->persist($diagram);
             $em->flush($diagram);

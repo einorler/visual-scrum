@@ -54,11 +54,6 @@ class PartsOfSpeechClient
             }
 
             if (in_array($tag, self::NOUN_TAGS)) {
-                // We don't want plurals here - singular form only
-                if ($tag == 'NNS') {
-                    $word = substr($word, 0, -1);
-                }
-
                 $nouns[] = $previousTag == 'JJ' ? $previousWord . ' ' . $word : $word;
             }
 

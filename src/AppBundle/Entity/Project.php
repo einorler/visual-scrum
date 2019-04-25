@@ -60,11 +60,11 @@ class Project
     private $useCaseDiagrams;
 
     /**
-     * @var ArrayCollection|ActivityDiagram[]
+     * @var ArrayCollection|ClassDiagram[]
      *
-     * @ORM\OneToMany(targetEntity="ActivityDiagram", mappedBy="project")
+     * @ORM\OneToMany(targetEntity="ClassDiagram", mappedBy="project")
      */
-    private $activityDiagrams;
+    private $classDiagrams;
 
     /**
      * A collection of all the nouns in the project
@@ -79,7 +79,7 @@ class Project
     {
         $this->userStories = new ArrayCollection();
         $this->useCaseDiagrams = new ArrayCollection();
-        $this->activityDiagrams = new ArrayCollection();
+        $this->classDiagrams = new ArrayCollection();
     }
 
     /**
@@ -227,28 +227,28 @@ class Project
     }
 
     /**
-     * @return ActivityDiagram[]|ArrayCollection
+     * @return ClassDiagram[]|ArrayCollection
      */
-    public function getActivityDiagrams()
+    public function getClassDiagrams()
     {
-        return $this->activityDiagrams;
+        return $this->classDiagrams;
     }
 
     /**
-     * @param ActivityDiagram $useCaceDiagram
+     * @param ClassDiagram $classDiagram
      */
-    public function addActivityDiagram(ActivityDiagram $useCaceDiagram)
+    public function addClassDiagram(ClassDiagram $classDiagram)
     {
-        $this->userStories->add($useCaceDiagram);
+        $this->classDiagrams->add($classDiagram);
     }
 
     /**
-     * @param ActivityDiagram $useCaceDiagram
+     * @param ClassDiagram $classDiagram
      */
-    public function removeActivityDiagram(ActivityDiagram $useCaceDiagram)
+    public function removeClassDiagram(ClassDiagram $classDiagram)
     {
-        if ($this->userStories->contains($useCaceDiagram)) {
-            $this->userStories->remove($useCaceDiagram);
+        if ($this->classDiagrams->contains($classDiagram)) {
+            $this->classDiagrams->remove($classDiagram);
         }
     }
 

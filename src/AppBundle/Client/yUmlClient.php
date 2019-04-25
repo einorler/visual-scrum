@@ -31,17 +31,19 @@ class yUmlClient
     {
         $query = $this->queryfyUseCaseArray($useCases);
 
-        $uri = self::HOST . 'usecase/' . $query;
-        $filename = self::PATH . uniqid() . '.png';
+        return $this->fetchFile(self::HOST . 'usecase/' . $query);
+    }
 
-        if (!is_dir(self::WEB_DIR . self::PATH)) {
-            mkdir(self::WEB_DIR . self::PATH, 0755, true);
-        }
+    /**
+     * @param array $dictionary
+     *
+     * @return string
+     */
+    public function fetchClassDiagram(array $dictionary): string
+    {
+        $query = $this->queryfyDictionary($dictionary);
 
-        $myFile = fopen(self::WEB_DIR . $filename, 'w');
-        $this->client->get($uri, ['save_to' => $myFile]);
-
-        return $filename;
+        return $this->fetchFile(self::HOST . 'class/' . $query);
     }
 
     /**
@@ -60,5 +62,39 @@ class yUmlClient
         }
 
         return substr($query, 0, -2);
+    }
+
+    /**
+     * @param array $dictionary
+     *
+     * @return string
+     */
+    private function queryfyDictionary(array $dictionary): string
+    {
+        $query = '';
+
+        foreach ($dictionary as $noun) {
+            $query .= sprintf('[%s], ', $noun);
+        }
+
+        return substr($query, 0, -2);
+    }
+
+    /**
+     * @param string $uri
+     * @return string
+     */
+    private function fetchFile(string $uri): string
+    {
+        $filename = self::PATH . uniqid() . '.png';
+
+        if (!is_dir(self::WEB_DIR . self::PATH)) {
+            mkdir(self::WEB_DIR . self::PATH, 0755, true);
+        }
+
+        $myFile = fopen(self::WEB_DIR . $filename, 'w');
+        $this->client->get($uri, ['save_to' => $myFile]);
+
+        return $filename;
     }
 }
