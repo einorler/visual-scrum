@@ -46,9 +46,35 @@ class XmlGenerator
      *
      * @throws \Exception
      */
-    public function generateActivityXml(array $data): string
+    public function generateClassXml(array $data): string
     {
+        $xml = $this->initial;
 
+        $xml .= '
+          <eAnnotations xmi:id="_anotation" source="genmymodel">
+            <details xmi:id="_anotation_value" key="uuid" value="' . md5(rand(0, 100000000)) . '"/>
+            <details xmi:id="_anotation_author" key="author" value="Pakistan42"/>
+          </eAnnotations>
+        ';
+
+        foreach ($data as $noun) {
+            if (!is_string($noun)) {
+                throw new \Exception('Failed generating class diagram due to invalid dictionary');
+            }
+
+            $codifiedNoun = str_replace(' ', '_', $noun);
+
+            $xml .= '
+              <packagedElement xsi:type="uml:Class" xmi:id="_noun_' . $codifiedNoun . '" name="' . $noun . '">
+                <eAnnotations xmi:id="_noun_' . $codifiedNoun . '_source" source="genmymodel">
+                  <details xmi:id="_noun_' . $codifiedNoun . '_uuid" key="uuid" value="' . md5($codifiedNoun) . '"/>
+                </eAnnotations>
+              </packagedElement>';
+        }
+
+        $xml .= '</uml:Model>';
+
+        return $xml;
     }
 
     /**
