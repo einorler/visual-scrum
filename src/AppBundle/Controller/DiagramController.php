@@ -87,12 +87,16 @@ class DiagramController extends Controller
 
         try {
             $filename = $this->get('app.client.yuml')->fetchClassDiagram($dictionary);
+            $xmlGenerator = new XmlGenerator();
+            $xmlFileName = uniqid() . '.xmi';
+            $fullName = __DIR__ . '/../../../web/diagrams/' . $xmlFileName;
+            file_put_contents($fullName, $xmlGenerator->generateClassXml($dictionary));
 
             $diagram = new ClassDiagram();
             $diagram->setProject($project);
             $diagram->setFile($filename);
             $diagram->setTitle($project->getTitle());
-            $diagram->setXmiFile('fake...');
+            $diagram->setXmiFile($xmlFileName);
 
             $em->persist($diagram);
             $em->flush($diagram);
