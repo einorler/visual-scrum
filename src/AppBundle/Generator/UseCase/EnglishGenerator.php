@@ -23,10 +23,10 @@ class EnglishGenerator extends AbstractUseCaseGenerator
     {
         $matches = [];
         $useCase = [];
-        preg_match('/^As (.*) I must be able to (.*)$/U', $story->getTitle(), $matches);
+        preg_match('/^As (a|the|an)? ([\w ]*?) I can (.*)(, so that .*)?$/U', $story->getTitle(), $matches);
 
-        $useCase['actor'] = $matches[1];
-        $useCase['use_case'] = $matches[2];
+        $useCase['actor'] = $matches[2];
+        $useCase['use_case'] = $matches[3];
 
         return $useCase;
     }
@@ -50,7 +50,7 @@ class EnglishGenerator extends AbstractUseCaseGenerator
      */
     public function validateStory(UserStory $story): void
     {
-        if (!preg_match('/^As .* I must be able to .*$/', $story->getTitle())) {
+        if (!preg_match('/^As [\w ]*? I can .*$/', $story->getTitle())) {
             $story->setValid(false);
             $this->em->persist($story);
 
